@@ -1,0 +1,42 @@
+# ============================================================
+# .gitignore — RubyAlert AIoT Lab Monitoring System
+# ============================================================
+
+# --- Bí mật & Cấu hình cá nhân ---
+.env
+*.pem
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# --- Môi trường ảo Python ---
+.venv/
+.venv_linux/
+venv/
+env/
+
+# --- IDE & Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Hệ điều hành ---
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# --- Thư mục không thuộc dự án ---
+stitch-skills-main/
+backups_chat_history/
+
+# --- File tạm ---
+parsed_chat_history.md
+read_logs_scratch.py
+*.log

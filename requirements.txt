@@ -1,0 +1,7 @@
+paho-mqtt>=1.6.1
+requests
+python-dotenv
+google-genai
+google-generativeai
+mpremote
+esptool

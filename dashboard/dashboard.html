@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RubyAlert AIoT Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- MQTT & Chart.js -->
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#313030",
+                    "tertiary-fixed": "#e6e1df",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#484645",
+                    "error": "#ba1a1a",
+                    "tertiary": "#000000",
+                    "on-background": "#1c1b1b",
+                    "primary-fixed": "#e5e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed": "#1c1b1b",
+                    "inverse-primary": "#c8c6c5",
+                    "outline-variant": "#c4c7c7",
+                    "secondary": "#5e5e5e",
+                    "tertiary-container": "#1d1b1a",
+                    "surface": "#fdf8f8",
+                    "on-surface-variant": "#444748",
+                    "on-secondary-fixed-variant": "#464747",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#646464",
+                    "surface-container": "#f1edec",
+                    "secondary-fixed-dim": "#c7c6c6",
+                    "surface-bright": "#fdf8f8",
+                    "tertiary-fixed-dim": "#cac6c3",
+                    "secondary-container": "#e3e2e2",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1c1b1b",
+                    "inverse-on-surface": "#f4f0ef",
+                    "on-error": "#ffffff",
+                    "outline": "#747878",
+                    "secondary-fixed": "#e3e2e2",
+                    "on-tertiary-container": "#868381",
+                    "primary": "#000000",
+                    "surface-container-high": "#ebe7e6",
+                    "on-primary-container": "#858383",
+                    "surface-container-low": "#f7f3f2",
+                    "background": "#fdf8f8",
+                    "on-secondary-fixed": "#1b1c1c",
+                    "surface-tint": "#5f5e5e",
+                    "surface-dim": "#ddd9d8",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e5e2e1",
+                    "on-primary-fixed-variant": "#474646",
+                    "primary-container": "#1c1b1b",
+                    "surface-container-highest": "#e5e2e1",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#c8c6c5",
+                    "on-tertiary-fixed": "#1d1b1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "xl": "48px",
+                    "margin": "32px",
+                    "lg": "32px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "base": "4px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-xl": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "metric-lg": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "metric-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; display: inline-block; vertical-align: middle; } .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; } @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } } .custom-chart-grid { background-image: linear-gradient(to bottom, #f1edec 1px, transparent 1px); background-size: 100% 40px; }</style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="bg-surface border-b border-outline-variant h-16 fixed top-0 w-full z-50">
+<div class="flex justify-between items-center w-full px-margin h-full mx-auto">
+<div class="flex items-center gap-xl">
+<span class="text-headline-md font-headline-md font-bold tracking-tight text-primary">RubyAlert.</span>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-primary border-b-2 border-primary pb-1 font-body-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors duration-200" href="#">Sensors</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors duration-200" href="#">Analytics</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors duration-200" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<div class="flex pt-16 h-[calc(100vh-64px)] overflow-hidden">
+<!-- Side Navigation Bar -->
+<aside class="hidden md:flex flex-col h-full py-md px-sm bg-surface-container-low border-r border-outline-variant w-64">
+<nav class="flex-grow space-y-base">
+<a class="flex items-center gap-sm px-sm py-xs bg-primary text-on-primary rounded-lg font-semibold transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-sm">Overview</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+<span class="text-label-sm">Live Feed</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="text-label-sm">Devices</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="text-label-sm">Logs</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-sm">System Settings</span>
+</a>
+</nav>
+<div class="pt-md border-t border-outline-variant mt-auto space-y-base">
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="text-label-sm">Documentation</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="text-label-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-grow overflow-y-auto p-margin bg-background">
+<!-- Dashboard Header Section -->
+<div class="flex justify-end items-start mb-xl">
+    <div class="flex flex-col items-end gap-xs">
+        <div class="flex items-center gap-xs px-sm py-base bg-surface-container-high rounded-full">
+            <div id="status-dot" class="w-2 h-2 rounded-full bg-error pulse-dot"></div>
+            <span id="status-text" class="text-label-sm font-label-sm text-primary uppercase">Offline</span>
+        </div>
+        <span class="text-label-sm font-label-sm text-on-surface-variant">Last Sync: <span id="last-sync">--:--:--</span></span>
+    </div>
+</div>
+<!-- Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-xl mb-xl">
+<!-- Temperature -->
+<div id="card-temp" class="bg-surface-container-lowest border p-lg rounded-xl border-surface-variant shadow-sm transition-colors duration-300">
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-widest block mb-md">TEMPERATURE</span>
+<div class="flex items-baseline gap-sm">
+    <span id="val-temp" class="text-metric-lg font-metric-lg text-primary font-bold">--</span>
+    <span class="text-headline-md font-headline-md text-secondary">°C</span>
+    <span id="icon-temp" class="material-symbols-outlined text-primary text-[28px] ml-auto" data-icon="thermostat">thermostat</span>
+</div>
+<div class="mt-lg pt-md border-t border-outline-variant flex justify-between items-center text-label-sm text-on-surface-variant">
+<span class="">Min: 22.1</span>
+<span class="">Max: 29.4</span>
+</div>
+</div>
+<!-- Humidity -->
+<div id="card-humi" class="bg-surface-container-lowest border p-lg rounded-xl border-surface-variant shadow-sm transition-colors duration-300">
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-widest block mb-md">HUMIDITY</span>
+<div class="flex items-baseline gap-sm">
+    <span id="val-humi" class="text-metric-lg font-metric-lg text-primary font-bold">--</span>
+    <span class="text-headline-md font-headline-md text-secondary">%</span>
+    <span class="material-symbols-outlined text-primary text-[28px] ml-auto" data-icon="humidity_mid">humidity_mid</span>
+</div>
+<div class="mt-lg pt-md border-t border-outline-variant flex justify-between items-center text-label-sm text-on-surface-variant">
+<span class="">Avg: 64.8</span>
+<span class="">Dew Pt: 21°</span>
+</div>
+</div>
+<!-- Gas Level (Alert State) -->
+<div id="card-gas" class="bg-surface-container-lowest border border-surface-variant p-lg rounded-xl shadow-sm transition-colors duration-300">
+<div class="flex justify-between items-start mb-md">
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-widest">GAS LEVEL</span>
+<span id="icon-gas" class="material-symbols-outlined text-secondary text-[20px]" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="flex items-baseline gap-sm">
+    <span id="val-gas" class="text-metric-lg font-metric-lg text-primary font-bold">--</span>
+    <span class="text-headline-md font-headline-md text-secondary">ppm</span>
+    <span class="material-symbols-outlined text-primary text-[28px] ml-auto" data-icon="air">air</span>
+</div>
+<div id="footer-gas" class="mt-lg pt-md border-t border-error/20 flex justify-between items-center text-label-sm text-error hidden">
+<span class="font-bold">CRITICAL THRESHOLD</span>
+</div>
+</div>
+<!-- Exhaust Fan -->
+<div class="bg-surface-container-lowest border p-lg rounded-xl flex flex-col justify-between border-surface-variant shadow-sm">
+<div>
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-widest block mb-md">EXHAUST FAN</span>
+<div class="flex items-center gap-md">
+    <span id="fan-icon" class="material-symbols-outlined text-primary text-[36px]" data-icon="cyclone">cyclone</span>
+    <span id="fan-status-text" class="text-metric-lg font-metric-lg text-primary ml-2 font-bold">Inactive</span>
+</div>
+</div>
+<div class="flex justify-end mt-lg">
+<!-- Custom Toggle Switch -->
+<label for="fan-switch" class="cursor-pointer">
+    <div class="relative">
+        <input type="checkbox" id="fan-switch" class="sr-only" onchange="toggleFan()">
+        <div class="block bg-secondary-fixed w-12 h-6 rounded-full transition-colors duration-300" id="fan-bg"></div>
+        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 shadow-sm border border-outline-variant" id="fan-dot"></div>
+    </div>
+</label>
+</div>
+</div>
+</div>
+<!-- Chart Section -->
+<div class="bg-surface-container-lowest border p-xl rounded-xl mt-xl border-surface-variant shadow-sm">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-xl gap-md">
+<h3 class="text-headline-md font-headline-md text-primary">Live Telemetry History</h3>
+<div class="flex flex-wrap gap-md items-center">
+<div class="flex items-center gap-xs">
+<div class="w-3 h-[2px] bg-primary"></div>
+<span class="text-label-sm text-on-surface-variant">Temp</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-[2px] border-t border-dashed border-secondary"></div>
+<span class="text-label-sm text-on-surface-variant">Humidity</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-[2px] bg-error"></div>
+<span class="text-label-sm text-on-surface-variant">Gas</span>
+</div>
+</div>
+</div>
+<!-- Chart.js Visualization -->
+<div class="relative w-full h-80 px-xl mb-xl">
+    <canvas id="historyChart"></canvas>
+</div>
+</div>
+<!-- Detailed Log List -->
+<div class="mt-xl">
+<h3 class="text-headline-md font-headline-md text-primary mb-lg">System Events</h3>
+<div id="log-container" class="bg-surface-container-lowest border border-outline-variant rounded-xl divide-y divide-outline-variant overflow-hidden">
+    <div class="p-lg flex justify-between items-center">
+        <div class="flex items-center gap-md">
+            <span class="text-label-sm font-label-sm bg-surface-container-high text-on-surface-variant px-sm py-base rounded-full uppercase">System</span>
+            <span class="text-body-md font-body-md text-primary">System initialized. No recent events.</span>
+        </div>
+    </div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest flex justify-around items-center h-16 border-t border-outline-variant z-50">
+<div class="flex flex-col items-center text-primary">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] uppercase font-bold">Dash</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+<span class="text-[10px] uppercase">Sensors</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-[10px] uppercase">Stats</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] uppercase">Setup</span>
+</div>
+</nav>
+
+<script>
+    // MQTT Configuration
+    const TOPIC_TELEMETRY = "rubyalert/lab_1/telemetry"; 
+    const TOPIC_FAN = "rubyalert/lab_1/fan"; 
+    // Tự động nhận diện host để tránh bị chặn kết nối (nếu mở local thì kết nối localhost, mở từ điện thoại thì kết nối IP laptop)
+    const brokerHost = window.location.hostname || '127.0.0.1';
+    const brokerUrl = `ws://${brokerHost}:9002/mqtt`;
+    const clientId = "RubyAlert_Web_" + Math.random().toString(16).substr(2, 8);
+
+    // Chart.js Configuration 
+    const ctx = document.getElementById('historyChart').getContext('2d');
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#747878';
+    
+    const historyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                { label: 'Temp (°C)', borderColor: '#000000', backgroundColor: '#000000', borderWidth: 2, pointRadius: 0, data: [], tension: 0.3, yAxisID: 'y' },
+                { label: 'Humi (%)', borderColor: '#747878', borderDash: [4, 4], borderWidth: 2, pointRadius: 0, data: [], tension: 0.3, yAxisID: 'y' },
+                { label: 'Gas (ppm)', borderColor: '#ba1a1a', backgroundColor: '#ba1a1a', borderWidth: 2, pointRadius: 0, data: [], tension: 0.3, yAxisID: 'y1' }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false } // We are using the custom legend above
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+                y: { type: 'linear', display: true, position: 'left', grid: { color: '#f1edec' }, border: { display: false } },
+                y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, border: { display: false } }
+            }
+        }
+    });
+
+    // DOM Elements
+    const elTemp = document.getElementById('val-temp');
+    const elHumi = document.getElementById('val-humi');
+    const elGas = document.getElementById('val-gas');
+    const cardTemp = document.getElementById('card-temp');
+    const cardGas = document.getElementById('card-gas');
+    const iconTemp = document.getElementById('icon-temp');
+    const iconGas = document.getElementById('icon-gas');
+    const elSync = document.getElementById('last-sync');
+
+    let lastGasAlertState = false;
+
+    function addLog(type, message) {
+        const container = document.getElementById('log-container');
+        const now = new Date().toLocaleTimeString('en-GB', { hour12: true });
+        
+        let badgeClass = "bg-surface-container-high text-on-surface-variant";
+        if(type === 'Alert') badgeClass = "bg-error text-on-error";
+        if(type === 'Action') badgeClass = "bg-secondary-container text-on-secondary-container";
+
+        const logHTML = `
+            <div class="p-lg flex justify-between items-center transition-all duration-300">
+                <div class="flex items-center gap-md">
+                    <span class="text-label-sm font-label-sm ${badgeClass} px-sm py-base rounded-full uppercase">${type}</span>
+                    <span class="text-body-md font-body-md text-primary">${message}</span>
+                </div>
+                <span class="text-label-sm text-on-surface-variant">${now}</span>
+            </div>
+        `;
+        
+        if (container.innerText.includes("No recent events")) {
+            container.innerHTML = '';
+        }
+        container.insertAdjacentHTML('afterbegin', logHTML);
+        if (container.children.length > 5) {
+            container.lastElementChild.remove();
+        }
+    }
+
+    function updateDashboard(t, h, g) {
+        elTemp.innerText = t.toFixed(1);
+        elHumi.innerText = h.toFixed(1);
+        elGas.innerText = g;
+
+        // Alerts for Temp
+        if (t > 35) {
+            cardTemp.classList.replace('bg-surface-container-lowest', 'bg-error-container');
+            cardTemp.classList.replace('border-surface-variant', 'border-error');
+            iconTemp.classList.replace('text-primary', 'text-error');
+            elTemp.classList.replace('text-primary', 'text-error');
+        } else {
+            cardTemp.classList.replace('bg-error-container', 'bg-surface-container-lowest');
+            cardTemp.classList.replace('border-error', 'border-surface-variant');
+            iconTemp.classList.replace('text-error', 'text-primary');
+            elTemp.classList.replace('text-error', 'text-primary');
+        }
+
+        // Alerts for Gas
+        if (g > 600) {
+            if(!lastGasAlertState) {
+                addLog('Alert', `Gas level reached ${g}ppm.`);
+                lastGasAlertState = true;
+            }
+            cardGas.classList.replace('bg-surface-container-lowest', 'bg-error-container');
+            cardGas.classList.replace('border-surface-variant', 'border-error');
+            iconGas.classList.replace('text-secondary', 'text-error');
+            elGas.classList.replace('text-primary', 'text-error');
+            document.getElementById('footer-gas').classList.remove('hidden');
+        } else {
+            if(lastGasAlertState) {
+                addLog('System', `Gas level normalized to ${g}ppm.`);
+                lastGasAlertState = false;
+            }
+            cardGas.classList.replace('bg-error-container', 'bg-surface-container-lowest');
+            cardGas.classList.replace('border-error', 'border-surface-variant');
+            iconGas.classList.replace('text-error', 'text-secondary');
+            elGas.classList.replace('text-error', 'text-primary');
+            document.getElementById('footer-gas').classList.add('hidden');
+        }
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
+        elSync.innerText = timeStr;
+
+        if (historyChart.data.labels.length > 30) {
+            historyChart.data.labels.shift();
+            historyChart.data.datasets.forEach(ds => ds.data.shift());
+        }
+
+        historyChart.data.labels.push(timeStr);
+        historyChart.data.datasets[0].data.push(t);
+        historyChart.data.datasets[1].data.push(h);
+        historyChart.data.datasets[2].data.push(g);
+        historyChart.update('none');
+    }
+
+    // MQTT Connection
+    const client = mqtt.connect(brokerUrl, {
+        clientId: clientId,
+        clean: true,
+        connectTimeout: 5000,
+        reconnectPeriod: 3000,
+    });
+
+    client.on('connect', function () {
+        document.getElementById('status-dot').classList.replace('bg-error', 'bg-green-500');
+        document.getElementById('status-text').innerText = "Online";
+        client.subscribe(TOPIC_TELEMETRY);
+        client.subscribe(TOPIC_FAN);
+        addLog('System', 'Connected to MQTT Broker.');
+    });
+
+    client.on('offline', function () {
+        document.getElementById('status-dot').classList.replace('bg-green-500', 'bg-error');
+        document.getElementById('status-text').innerText = "Offline";
+    });
+
+    client.on('message', function (topic, message) {
+        const payload = message.toString();
+        if (topic === TOPIC_TELEMETRY) {
+            try {
+                const data = JSON.parse(payload);
+                updateDashboard(data.temperature, data.humidity, data.gas);
+            } catch (e) { console.error("Parse JSON failed", e); }
+        } else if (topic === TOPIC_FAN) {
+            const fanState = payload === "1";
+            updateFanUI(fanState);
+        }
+    });
+
+    function updateFanUI(fanState) {
+        document.getElementById('fan-switch').checked = fanState;
+        document.getElementById('fan-status-text').innerText = fanState ? "Active" : "Inactive";
+        const icon = document.getElementById('fan-icon');
+        const bg = document.getElementById('fan-bg');
+        const dot = document.getElementById('fan-dot');
+        
+        if (fanState) {
+            icon.classList.add('animate-spin');
+            bg.classList.replace('bg-secondary-fixed', 'bg-primary');
+            dot.style.transform = 'translateX(24px)';
+        } else {
+            icon.classList.remove('animate-spin');
+            bg.classList.replace('bg-primary', 'bg-secondary-fixed');
+            dot.style.transform = 'translateX(0)';
+        }
+    }
+
+    function toggleFan() {
+        const isChecked = document.getElementById('fan-switch').checked;
+        client.publish(TOPIC_FAN, isChecked ? "1" : "0");
+        addLog('Action', `Exhaust Fan turned ${isChecked ? 'ON' : 'OFF'}.`);
+    }
+</script>
+</body></html>
