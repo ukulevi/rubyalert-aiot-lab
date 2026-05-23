@@ -43,7 +43,7 @@ graph TD
 Thư mục dự án đã được sắp xếp khoa học, chia tách rõ ràng giữa Firmware của thiết bị, Code máy chủ (Server), Giao diện giám sát (Dashboard) và Tài liệu học thuật (Docs):
 
 ```text
-C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\
+C:\Users\PC\Downloads\DADN\DADN\
 ├── dashboard/
 │   └── dashboard.html               # Giao diện Web giám sát thời gian thực (HTML, Tailwind CSS, MQTT over WS)
 ├── docs/
@@ -151,7 +151,7 @@ cd server
 ### Bước 1: Chạy Edge Server Hợp Nhất (Smart System)
 Mở một cửa sổ terminal mới và chạy máy chủ từ môi trường ảo `.venv`:
 ```bash
-cd "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\server"
+cd "C:\Users\PC\Downloads\DADN\DADN\server"
 $env:PYTHONIOENCODING="utf-8"
 ..\.venv\Scripts\python.exe smart_lab_system.py
 ```
@@ -170,13 +170,13 @@ Hệ thống sẽ lập tức:
        *(Ví dụ trên máy tính của bạn, cổng kết nối thực tế được phát hiện là `COM4` chứ không phải `COM3`)*.
     3. Nạp code mới nhất từ máy tính lên bo mạch ESP32 (dùng đúng cổng COM của bạn, ví dụ `COM4`):
        ```bash
-       & "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\.venv\Scripts\mpremote.exe" connect COM4 fs cp firmware/main.py :main.py
+       & "C:\Users\PC\Downloads\DADN\DADN\.venv\Scripts\mpremote.exe" connect COM4 fs cp firmware/main.py :main.py
        ```
        > [!WARNING]  
        > **Khắc phục lỗi chiếm dụng cổng COM (`failed to access COM`):** Lỗi này xảy ra do phần mềm khác (như Thonny IDE hoặc một cửa sổ terminal REPL khác) đang giữ cổng kết nối. Bạn bắt buộc phải **đóng hoàn toàn Thonny** hoặc nhấn nút **Stop** màu đỏ trong Thonny trước khi chạy lệnh nạp code!
     4. Mở giao diện theo dõi log trực tiếp (REPL) của ESP32 để xem thông tin và kiểm tra kết nối WiFi:
        ```bash
-       & "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\.venv\Scripts\mpremote.exe" connect COM4 repl
+       & "C:\Users\PC\Downloads\DADN\DADN\.venv\Scripts\mpremote.exe" connect COM4 repl
        ```
        *(Sau khi vào REPL, nhấn **Ctrl + D** để khởi động lại nhanh bo mạch, nhấn **Ctrl + ]** khi muốn thoát màn hình theo dõi log)*.
        > [!CAUTION]  
@@ -184,7 +184,7 @@ Hệ thống sẽ lập tức:
        > **Cách xử lý:** Hãy **rút tạm thời nguồn VCC của Relay, Còi Buzzer và cảm biến MQ-2** ra trước khi nạp code và khởi động. Sau khi ESP32 đã kết nối WiFi và Broker thành công, hãy cắm lại dây thiết bị ngoại vi (hoặc sử dụng nguồn cấp 5V ngoài sạch và ổn định).
 *   **Nếu kiểm tra offline (Simulator giả lập):**
     ```bash
-    cd "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\server"
+    cd "C:\Users\PC\Downloads\DADN\DADN\server"
     ..\.venv\Scripts\python.exe esp32_simulator.py
     ```
 
@@ -192,7 +192,7 @@ Hệ thống sẽ lập tức:
 *   **Cách 1 (Offline File):** Nhấp đúp mở trực tiếp file `dashboard/dashboard.html` bằng trình duyệt.
 *   **Cách 2 (Local Web Server cho cả Điện thoại & PC):** Khởi động HTTP Server từ môi trường ảo:
     ```bash
-    cd "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN"
+    cd "C:\Users\PC\Downloads\DADN\DADN"
     & ".\.venv\Scripts\python.exe" -m http.server 8000
     ```
     Sau đó truy cập địa chỉ sau trên trình duyệt (đảm bảo điện thoại bắt cùng Wi-Fi):
@@ -211,10 +211,8 @@ Chatbot tự động đăng ký bộ lệnh thông minh trực quan:
 
 ## 👤 Tác Giả & Giấy Phép
 
-* **Tác giả:** Lê Hoàng Chi Vi ([@ukulevi](https://github.com/ukulevi))
+* **Tác giả:** LE HOANG CHI VI ([@ukulevi](https://github.com/ukulevi))
 * **Email:** lehoangchivi2005@gmail.com
 * **Giấy phép:** Dự án được phân phối theo [MIT License](LICENSE).
 
 ---
-
-*Chúc bạn bảo vệ thành công đồ án Đa ngành với số điểm xuất sắc nhất! Hệ thống AIoT RubyAlert đã sẵn sàng vận hành.* 🚀🚨

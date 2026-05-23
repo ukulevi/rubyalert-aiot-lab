@@ -34,6 +34,7 @@ GAS_LIMIT = 2000
 SIMULATION_MODE = False # Đổi thành False nếu dùng ESP32 thật
 
 fan_on = False
+manual_override = False # Cờ cưỡng bức điều khiển quạt thủ công
 last_temp = None
 last_humi = None
 last_gas = None
@@ -123,15 +124,17 @@ def ask_gemini_ai(user_question):
 # --- CÁC HÀM THỰC THI (TOOLS) CHO AI ---
 def set_fan_state(state: str):
     """Bật hoặc tắt quạt thông gió. state chỉ có thể là 'ON' hoặc 'OFF'."""
-    global fan_on
+    global fan_on, manual_override
     if state == "ON":
         client.publish(config.FEED_FAN, "1")
         fan_on = True
+        manual_override = True
         log("AI_ACTION", "AI đã thực hiện BẬT QUẠT 🟢")
         return "Đã bật quạt thông gió thành công."
     else:
         client.publish(config.FEED_FAN, "0")
         fan_on = False
+        manual_override = False
         log("AI_ACTION", "AI đã thực hiện TẮT QUẠT 🔴")
         return "Đã tắt quạt thông gió thành công."
 
@@ -154,6 +157,7 @@ def handle_telegram_cmd(text, chat_id):
     elif text == "/fan_on":
         client.publish(config.FEED_FAN, "1")
         fan_on = True
+        manual_override = True
         reply = "Đã BẬT quạt từ xa 🟢"
         log("ACTION", "Telegram Command: Fan ACTIVATED 🟢")
     elif text == "/report":
@@ -168,7 +172,7 @@ def handle_telegram_cmd(text, chat_id):
             "🖥️ **HỆ THỐNG GIÁM SÁT LAB - DASHBOARD**\n\n"
             "**1. Trên Máy Tính (Offline File):**\n"
             "Mở đường dẫn sau bằng trình duyệt:\n"
-            "`file:///C:/Users/PC/Downloads/ĐAĐN/ĐAĐN/dashboard/dashboard.html`\n\n"
+            "`file:///C:/Users/PC/Downloads/DADN/DADN/dashboard/dashboard.html`\n\n"
             "**2. Trên Điện Thoại (Web Server local):**\n"
             f"Trạng thái Server: {status_msg}\n"
             "👉 Đường dẫn truy cập: `http://192.168.1.91:8000/dashboard/dashboard.html`\n"
@@ -257,8 +261,32 @@ def on_connect(client, userdata, flags, rc):
         log("ERROR", f"Auth Failed (RC:{rc})")
 
 def process_aiot_logic(t, h, g):
-    global fan_on, last_temp, last_humi, last_gas
+    global fan_on, manual_override, last_temp, last_humi, last_gas
     
+    # --- PHÁT HIỆN LỖI CẢM BIẾN DHT22 (Khi ESP32 trả về 0.0 do lỗi đọc/lỏng dây) ---
+    if t == 0.0 and h == 0.0:
+        log("SENSOR_ERROR", "Lỗi đọc DHT22 (Lỏng dây hoặc hỏng phần cứng) ⚠️")
+        global last_sensor_error_time
+        if 'last_sensor_error_time' not in globals():
+            last_sensor_error_time = 0
+        now = time.time()
+        if now - last_sensor_error_time > 60: # Cooldown 1 phút chống spam
+            send_telegram("⚠️ **[RubyAlert] CẢNH BÁO PHẦN CỨNG**\nKhông thể đọc dữ liệu từ cảm biến Nhiệt độ/Độ ẩm DHT22. Vui lòng kiểm tra lại dây cắm vật lý trên mạch ESP32!")
+            last_sensor_error_time = now
+        # Giữ nguyên giá trị đo cũ của DHT22 để tránh tính toán sai, chỉ cập nhật Gas
+        last_gas = g
+        # Vẫn chạy logic bảo vệ cho cảm biến Gas
+        if g > GAS_LIMIT:
+            if not fan_on:
+                client.publish(config.FEED_FAN, "1")
+                fan_on = True
+                manual_override = False
+        elif g < (GAS_LIMIT * 0.6) and fan_on and not manual_override:
+            log("SYSTEM", "Khí Gas an toàn (DHT22 đang lỗi). Tự động tắt quạt ❄️")
+            client.publish(config.FEED_FAN, "0")
+            fan_on = False
+        return
+
     last_humi = h
     last_gas = g
 
@@ -282,10 +310,12 @@ def process_aiot_logic(t, h, g):
         if not fan_on:
             client.publish(config.FEED_FAN, "1")
             fan_on = True
+            manual_override = False # Reset cờ thủ công để bảo vệ an toàn tối đa
     elif t < TEMP_SAFE and g < (GAS_LIMIT * 0.6) and fan_on:
-        log("SYSTEM", "Môi trường an toàn. Tự động tắt quạt ❄️")
-        client.publish(config.FEED_FAN, "0")
-        fan_on = False
+        if not manual_override: # Chỉ tự động tắt khi không ở chế độ cưỡng bức thủ công
+            log("SYSTEM", "Môi trường an toàn. Tự động tắt quạt ❄️")
+            client.publish(config.FEED_FAN, "0")
+            fan_on = False
 
     # --- TẠO THÔNG BÁO KHẨN CẤP ĐỒNG BỘ ĐẸP MẮT ---
     if temp_high and gas_high:
@@ -359,6 +389,13 @@ def on_message(client, userdata, msg):
     if topic == config.FEED_FAN:
         status = "ACTIVATED 🟢" if payload=="1" else "DEACTIVATED 🔴"
         log("ACTION", f"External Command: Fan {status}")
+        global fan_on, manual_override
+        if payload == "1":
+            fan_on = True
+            manual_override = True
+        else:
+            fan_on = False
+            manual_override = False
     
     elif topic == config.MQTT_TOPIC_TELEMETRY:
         try:
@@ -417,7 +454,7 @@ def run_system():
         send_telegram(
             "🚀 **Hệ thống giám sát phòng Lab RubyAlert đã ONLINE!**\n\n"
             "🖥️ **Dashboard Web:**\n"
-            "- **PC:** `file:///C:/Users/PC/Downloads/ĐAĐN/ĐAĐN/dashboard/dashboard.html`\n"
+            "- **PC:** `file:///C:/Users/PC/Downloads/DADN/DADN/dashboard/dashboard.html`\n"
             f"- **Mobile:** `http://192.168.1.91:8000/dashboard/dashboard.html` ({status_msg})\n\n"
             "💬 Gõ `/status` để xem thông số, `/dashboard` để lấy lại link, hoặc chat tự do bằng tiếng Việt để hỏi mình nhé!", 
             ignore_cooldown=True

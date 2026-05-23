@@ -149,6 +149,14 @@
 - Khi đạt ngưỡng phòng ngừa, AI Gemini được kích hoạt để phân tích tình huống và tự động bật quạt.
 - Cơ chế Cooldown cho AI: Tối đa 1 lần phân tích mỗi 5 phút (300 giây). Nếu đang trong thời gian hồi chiêu, hệ thống Local tự xử lý (không tốn Token AI).
 
+**e) Sensor Fault Detection & Hardware-Safe Logic (Phát hiện lỗi cảm biến):**
+- Hệ thống có khả năng tự động nhận diện cảm biến bị lỗi hoặc đứt kết nối (Ví dụ: DHT22 trả về giá trị 0.0 hoặc không có dữ liệu).
+- Khi phát hiện lỗi, hệ thống lập tức vô hiệu hóa các quy tắc tự động hóa liên quan đến cảm biến đó để tránh lỗi điều khiển sai (Hardware-Safe), đồng thời gửi cảnh báo SOS qua Telegram cho quản trị viên.
+
+**f) Manual Override (Bảo vệ quyền điều khiển thủ công):**
+- Cờ `manual_override` được thiết kế để giải quyết xung đột giữa điều khiển thủ công và tự động hóa. 
+- Khi người dùng chủ động điều khiển quạt (qua Dashboard/Telegram), hệ thống sẽ tạm ngưng các logic can thiệp tự động để tôn trọng quyết định của con người.
+
 #### 3.3.4. Tích hợp AI (Google Gemini)
 
 **Kiến trúc 3 cấp độ AI:**
@@ -207,8 +215,9 @@
 ## CHƯƠNG 4: KẾT QUẢ THỰC NGHIỆM (~5 trang)
 
 ### 4.1. Môi trường thử nghiệm
-- Chế độ mô phỏng (Simulation Mode): Dữ liệu ngẫu nhiên trong khoảng thực tế.
-- Phần cứng thật (Hardware Mode): ESP32 + DHT22 + MQ-2 + Relay + Quạt DC.
+- **Chế độ mô phỏng (Simulation Mode):** Dữ liệu ngẫu nhiên trong khoảng thực tế.
+- **Phần cứng thật (Hardware Mode):** ESP32 + DHT22 + MQ-2 + Relay + Quạt DC.
+- **Đánh giá Baseline (Cơ sở so sánh):** Hệ thống có sử dụng module `lab_analytics_backend.py` đóng vai trò là một hệ thống giám sát IoT truyền thống (không tích hợp AI) để làm cơ sở (baseline) nhằm so sánh và làm nổi bật sức mạnh tự động hóa/trợ lý của module `smart_lab_system.py` có AI.
 
 ### 4.2. Kết quả giám sát thời gian thực
 - Screenshot Dashboard trên PC (hiển thị 4 card + biểu đồ).
@@ -257,15 +266,18 @@
   - **AI 3 cấp độ** (Reactive → Agentic → Autonomous) — Điểm nhấn khác biệt của đề tài.
 - Hệ thống hoạt động ổn định trên cả chế độ mô phỏng và phần cứng thật.
 
-### 5.2. Đóng góp chính của đề tài
-1. Đề xuất mô hình **AIoT 3 cấp độ** áp dụng cho bài toán an toàn phòng Lab.
-2. Triển khai thành công **Function Calling** (Gemini AI) để AI điều khiển thiết bị vật lý bằng ngôn ngữ tự nhiên.
-3. Thiết kế chiến lược **tối ưu Token** (Hybrid Processing, Cooldown, Micro-prompt) cho phép hệ thống AI chạy 24/7 trên gói API miễn phí.
+### 5.2. Tổng hợp các Điểm sáng (Highlights / Đóng góp chính)
+1. **Kiến trúc AIoT 3 cấp độ (Reactive -> Agentic -> Autonomous):** Là điểm nhấn khác biệt lớn nhất của đề tài, biến hệ thống IoT từ việc chỉ hiển thị dữ liệu sang khả năng tự tương tác, tự hiểu ngữ nghĩa điều khiển và tự ra quyết định độc lập.
+2. **Cơ chế Fault-Tolerant & Hardware-Safe:** Phát hiện sớm tình trạng hỏng hóc hoặc ngắt kết nối cảm biến (vd: DHT22 trả về 0.0), lập tức vô hiệu hóa AI/Logic bị phụ thuộc để bảo vệ thiết bị phần cứng, đồng thời gửi thông báo SOS.
+3. **Quản lý xung đột điều khiển (Manual Override):** Giải quyết bài toán xung đột cơ bản trong tự động hóa, luôn tôn trọng lệnh thao tác thủ công của con người thay vì cứng nhắc theo logic máy móc.
+4. **Tích hợp linh hoạt với chi phí thấp:** Xây dựng giải pháp tổng thể (Backend + Mobile/Web Dashboard + Chatbot Telegram) với các thành phần phần cứng chi phí thấp nhưng có độ hoàn thiện ở phần mềm cực kỳ cao.
+5. **Chiến lược tối ưu tài nguyên (Token Optimization):** Thiết kế Hybrid Processing, Cooldown, Micro-prompt giúp AI (Gemini) chạy mượt mà 24/7 mà không lo vượt giới hạn API miễn phí.
 
-### 5.3. Hạn chế
-- MQ-2 là cảm biến bán định lượng, cần calibration cho ứng dụng đo chính xác.
-- Sử dụng MQTT Broker công cộng, chưa triển khai bảo mật TLS/SSL.
-- Chưa có hệ thống lưu trữ dữ liệu lịch sử dài hạn (Database).
+### 5.3. Tổng hợp các Hạn chế (Limitations)
+1. **Sự phụ thuộc vào MQTT Broker công cộng (broker.emqx.io):** Gây ra độ trễ hoặc rủi ro gián đoạn dịch vụ, đồng thời gói tin hiện tại ở dạng bản rõ (Unencrypted JSON) và chưa có mã hóa TLS/SSL, có nguy cơ lộ thông tin nội bộ.
+2. **Tính chất bán định lượng của thiết bị đầu cuối:** Cảm biến MQ-2 là cảm biến bán định lượng, có độ nhạy với nhiều loại khí khác nhau thay vì chuyên biệt, nên khó cung cấp giá trị ppm chính xác tuyệt đối mà cần qua quá trình Calibration (hiệu chuẩn) chuyên sâu.
+3. **Phụ thuộc kết nối Internet (Wi-Fi local):** Nếu mạng Wi-Fi tại phòng Lab bị rớt, ESP32 sẽ mất kết nối với Backend, hệ thống sẽ rơi vào trạng thái mù (dù có thể bổ sung xử lý Local tại ESP32 nhưng hiện đề tài chủ yếu xử lý tại Server).
+4. **Cơ sở dữ liệu (Database):** Hệ thống đang tập trung vào thời gian thực (Real-time telemetry), chưa có database kiên cố (như SQLite/InfluxDB/PostgreSQL) nên bị giới hạn trong việc xuất báo cáo thống kê dài hạn và huấn luyện lại AI từ lịch sử lâu dài.
 
 ### 5.4. Hướng phát triển
 1. **Bổ sung màn hình OLED** trên ESP32 để hiển thị dữ liệu tại chỗ.
@@ -280,7 +292,7 @@
 
 ### A. Cấu trúc thư mục dự án
 ```
-ĐAĐN/
+DADN/
 ├── config.py               # Cấu hình tập trung (API Key, MQTT, Telegram)
 ├── smart_lab_system.py     # Backend chính (AIoT Logic + Gemini AI + Telegram Bot)
 ├── esp32_simulator.py      # Trình mô phỏng ESP32 (Chế độ phát triển)

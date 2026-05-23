@@ -51,14 +51,14 @@ Broker cục bộ đã được cấu hình an toàn tại `C:\Users\PC\Download
 1. Mở một Terminal mới (CMD hoặc PowerShell).
 2. Di chuyển vào thư mục dự án và khởi động:
    ```powershell
-   cd "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\server"
+   cd "C:\Users\PC\Downloads\DADN\DADN\server"
    $env:PYTHONIOENCODING="utf-8"
    python smart_lab_system.py
    ```
    *(Hệ thống sẽ tự động chạy ngầm luồng giả lập cảm biến và luồng lắng nghe Telegram Bot mà bạn không cần mở thêm bất kỳ terminal nào khác)*.
 
 ### Bước 2: Tương tác qua Chatbot Telegram & Web Dashboard
-*   **Nhận đường dẫn tự động:** Ngay khi hệ thống chạy trực tuyến thành công, Chatbot sẽ lập tức gửi một tin nhắn chào mừng lên Telegram của bạn, đính kèm link mở Web Dashboard cục bộ (`file:///C:/Users/PC/Downloads/ĐAĐN/ĐAĐN/dashboard/dashboard.html`). Bạn chỉ cần copy/click để mở trực tiếp trên máy tính!
+*   **Nhận đường dẫn tự động:** Ngay khi hệ thống chạy trực tuyến thành công, Chatbot sẽ lập tức gửi một tin nhắn chào mừng lên Telegram của bạn, đính kèm link mở Web Dashboard cục bộ (`file:///C:/Users/PC/Downloads/DADN/DADN/dashboard/dashboard.html`). Bạn chỉ cần copy/click để mở trực tiếp trên máy tính!
 *   **Hỏi nhanh đường dẫn:** Chatbot hỗ trợ lệnh `/dashboard`. Gõ `/dashboard` trên điện thoại bất cứ lúc nào, bot sẽ gửi lại link mở giao diện cho bạn.
 *   **Các câu lệnh hữu ích khác:**
     *   `/status`: Xem nhanh thông số Nhiệt độ, Độ ẩm, Khí Gas và trạng thái Quạt.
@@ -74,7 +74,7 @@ Broker cục bộ đã được cấu hình an toàn tại `C:\Users\PC\Download
 1. Mở cửa sổ Terminal thứ hai.
 2. Di chuyển vào thư mục dự án và chạy:
    ```powershell
-   cd "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\server"
+   cd "C:\Users\PC\Downloads\DADN\DADN\server"
    python lab_analytics_backend.py
    ```
 
@@ -83,7 +83,7 @@ Broker cục bộ đã được cấu hình an toàn tại `C:\Users\PC\Download
     1. Mở cửa sổ Terminal thứ ba.
     2. Chạy lệnh:
        ```powershell
-       cd "C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\server"
+       cd "C:\Users\PC\Downloads\DADN\DADN\server"
        python esp32_simulator.py
        ```
 *   **Nếu dùng Thiết bị ESP32 thật:**
@@ -91,7 +91,7 @@ Broker cục bộ đã được cấu hình an toàn tại `C:\Users\PC\Download
     2. Sử dụng phần mềm **Thonny** nạp file `main.py` từ thư mục `firmware/` vào mạch dưới tên `main.py`. ESP32 sẽ tự động kết nối WiFi và đẩy dữ liệu trực tiếp về máy tính.
 
 ### Bước 3: Mở Dashboard giám sát
-1. Mở trình duyệt (Chrome/Edge), nhấn `Ctrl + O` và chọn file `C:\Users\PC\Downloads\ĐAĐN\ĐAĐN\dashboard\dashboard.html`.
+1. Mở trình duyệt (Chrome/Edge), nhấn `Ctrl + O` và chọn file `C:\Users\PC\Downloads\DADN\DADN\dashboard\dashboard.html`.
 2. Dashboard sẽ chuyển trạng thái sang **Online** (Màu xanh lá) hiển thị các thông số tức thời.
 
 ---
