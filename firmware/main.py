@@ -19,7 +19,7 @@ TOPIC_TELEMETRY = b"rubyalert/lab_1/telemetry"
 TOPIC_FAN       = b"rubyalert/lab_1/fan"
 
 # 3. Cấu hình chân phần cứng (Pins) theo sơ đồ đấu nối chuẩn của đồ án
-sensor_dht = dht.DHT11(Pin(4))     # Chuyển sang DHT11 nối chân GPIO 4 (tương thích phần cứng thực tế)
+sensor_dht = dht.DHT22(Pin(4))     # Sử dụng DHT22 nối chân GPIO 4 (Phát hiện phần cứng chuẩn xác)
 sensor_mq2 = ADC(Pin(34))          # MQ-2 nối chân GPIO 34 (Analog A0)
 sensor_mq2.atten(ADC.ATTN_11DB)   # Cấu hình thang đo 0 - 3.6V cho MQ-2 (Đọc giá trị 0-4095)
 relay_fan  = Pin(27, Pin.OUT)      # Relay quạt nối chân GPIO 27
@@ -126,7 +126,7 @@ def run_real_hardware():
             if now - last_send >= 10 or now < last_send: # Tránh trường hợp overflow
                 last_send = now
                 
-                # Đọc cảm biến DHT11
+                # Đọc cảm biến DHT22
                 temp = 0.0
                 humi = 0.0
                 try:
@@ -134,7 +134,7 @@ def run_real_hardware():
                     temp = round(sensor_dht.temperature(), 1)
                     humi = round(sensor_dht.humidity(), 1)
                 except Exception as e:
-                    print("❌ Lỗi đọc cảm biến DHT11:", e)
+                    print("❌ Lỗi đọc cảm biến DHT22:", e)
                 
                 # Đọc cảm biến MQ-2 (Gas)
                 gas = 0

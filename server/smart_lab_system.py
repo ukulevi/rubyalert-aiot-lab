@@ -40,6 +40,7 @@ last_gas = None
 last_telegram_time = 0
 last_update_id = 0
 TELEGRAM_COOLDOWN = 60 # 60 giây chống spam tin nhắn
+is_first_connect = True # Cờ hiệu kiểm soát log kết nối lần đầu
 
 def log(tag, msg):
     try:
@@ -243,8 +244,13 @@ def telegram_polling():
         time.sleep(2)
 
 def on_connect(client, userdata, flags, rc):
+    global is_first_connect
     if rc == 0:
-        log("SYSTEM", "RubyAlert Node Online.")
+        if is_first_connect:
+            log("SYSTEM", "RubyAlert Node Online.")
+            is_first_connect = False
+        else:
+            log("SYSTEM", "MQTT Reconnected.")
         client.subscribe(config.FEED_FAN)
         client.subscribe(config.MQTT_TOPIC_TELEMETRY) # Lắng nghe cả dữ liệu cảm biến
     else:
@@ -366,7 +372,10 @@ def on_message(client, userdata, msg):
             log("ERROR", f"Lỗi xử lý dữ liệu từ {topic}: {e}")
 
 
-client = mqtt.Client("RubyAlert_AIoT_Node")
+import uuid
+# Sử dụng Client ID ngẫu nhiên để tránh xung đột trùng ID gây lặp reconnect liên tục trên Broker
+client_rand_id = f"RubyAlert_AIoT_Node_{uuid.uuid4().hex[:6]}"
+client = mqtt.Client(client_rand_id)
 client.username_pw_set(config.OHSTEM_USERNAME, config.OHSTEM_KEY)
 client.on_connect = on_connect
 client.on_message = on_message
