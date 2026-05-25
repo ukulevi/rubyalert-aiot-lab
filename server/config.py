@@ -9,10 +9,17 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")  # Lấy tại aistudio.google.com
 
+# --- HỖ TRỢ ĐA MODEL (FREE DUCKDUCKGO, GEMINI, GROQ, OLLAMA) ĐỀ TĂNG QUOTA FREE ---
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "free").lower()  # "free" (DuckDuckGo GPT-4o-Mini - Không cần key, quota cực lớn), "gemini", "groq", "ollama"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")  # qwen2.5:3b, llama3, gemma2
+
+
 
 # --- CHỌN SERVER MQTT ---
 # Đang dùng Mosquitto Broker cục bộ trên máy Edge Server
-MQTT_SERVER = "192.168.1.91" 
+MQTT_SERVER = "127.0.0.1" 
 MQTT_PORT = 1884
 OHSTEM_USERNAME = ""  # Để trống khi dùng Broker cục bộ không xác thực
 OHSTEM_KEY = ""       # Để trống khi dùng Broker cục bộ không xác thực

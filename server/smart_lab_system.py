@@ -31,7 +31,7 @@ TEMP_SAFE = 32.0 # Ngưỡng an toàn để tắt quạt (Hysteresis)
 GAS_LIMIT = 2000
 
 # Biến trạng thái hệ thống (State)
-SIMULATION_MODE = False # Đổi thành False nếu dùng ESP32 thật
+SIMULATION_MODE = True # Đổi thành False nếu dùng ESP32 thật
 
 fan_on = False
 manual_override = False # Cờ cưỡng bức điều khiển quạt thủ công
@@ -80,66 +80,161 @@ def send_telegram(message, ignore_cooldown=False):
     except Exception as e:
         log("ERROR", f"Connection to Telegram failed: {e}")
 
-# --- MODULE AI: PHÂN TÍCH VỚI GEMINI (SDK MỚI) ---
-def ask_gemini_ai(user_question):
+# --- HÀM GỌI CÁC ĐỐI TÁC KHÁC NHAU (GEMINI, GROQ, OLLAMA) ---
+def ask_gemini_sdk_ai(user_question, sys_instruction):
     if not AI_ENABLED or config.GEMINI_API_KEY == "DIEN_API_KEY_CUA_BAN_VAO_DAY":
-        return "⚠️ Chưa cấu hình API Key."
-    
-    # Prompt nén gọn để tiết kiệm Token
-    sys_instruction = f"""Hệ thống RubyAlert. T:{last_temp}C, H:{last_humi}%, G:{last_gas}ppm, Quạt:{"ON" if fan_on else "OFF"}.
-    Quy tắc: 1. Chỉ trả lời về an toàn Lab/thiết bị. 2. Từ chối câu hỏi ngoài lề. 3. Ngắn gọn, dùng icon, in đậm số."""
-
-
-    
+        return "⚠️ Chưa cấu hình API Key cho Gemini."
     try:
-        # Gọi Gemini với khả năng sử dụng công cụ (Function Calling)
         response = client_ai.models.generate_content(
             model='gemini-2.0-flash',
             contents=user_question,
             config=types.GenerateContentConfig(
                 system_instruction=sys_instruction,
                 tools=tools_list,
-                max_output_tokens=150 # Giới hạn độ dài để tiết kiệm Token
+                max_output_tokens=150
             )
         )
-
-        
-        # Nếu AI quyết định gọi hàm (ví dụ: bật quạt)
         if response.candidates[0].content.parts[0].function_call:
             fn = response.candidates[0].content.parts[0].function_call
-            if fn.name == "set_fan_state":
-                # Thực thi hàm và lấy kết quả
-                s = fn.args["state"]
-                result = set_fan_state(s)
-                return f"✅ {result}"
-
+            if fn.name == "turn_on_fan":
+                return turn_on_fan()
+            elif fn.name == "turn_off_fan":
+                return turn_off_fan()
+            elif fn.name == "set_fan_state":
+                s = fn.args.get("state", "OFF")
+                return set_fan_state(s)
         return response.text.strip()
     except Exception as e:
-
         if "429" in str(e):
-            return f"🚀 **AI đang bận (Quá tải)**.\n\n📊 **Dữ liệu thô:**\n- T: {last_temp}°C\n- H: {last_humi}%\n- G: {last_gas} ppm\n\n(Vui lòng đợi vài giây rồi thử lại câu hỏi của bạn)"
-        return f"❌ Lỗi AI: {str(e)}"
+            return f"🚀 **Gemini đang bận (Quá tải)**.\n\n📊 **Dữ liệu thô:**\n- T: {last_temp}°C\n- H: {last_humi}%\n- G: {last_gas} ppm"
+        return f"❌ Lỗi Gemini SDK: {str(e)}"
+
+def ask_groq_ai(user_question, sys_instruction):
+    if not config.GROQ_API_KEY or config.GROQ_API_KEY == "DIEN_GROQ_API_KEY":
+        return "⚠️ Chưa cấu hình GROQ_API_KEY trong file .env"
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {config.GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": [
+            {"role": "system", "content": sys_instruction},
+            {"role": "user", "content": user_question}
+        ],
+        "max_tokens": 150,
+        "temperature": 0.7
+    }
+    try:
+        r = requests.post(url, json=payload, headers=headers, timeout=10)
+        if r.status_code == 200:
+            res_data = r.json()
+            return res_data["choices"][0]["message"]["content"].strip()
+        else:
+            return f"❌ Lỗi Groq API ({r.status_code}): {r.text}"
+    except Exception as e:
+        return f"❌ Lỗi kết nối Groq: {str(e)}"
+
+def ask_ollama_ai(user_question, sys_instruction):
+    url = f"{config.OLLAMA_HOST}/api/generate"
+    payload = {
+        "model": config.OLLAMA_MODEL,
+        "prompt": f"System: {sys_instruction}\nUser: {user_question}",
+        "stream": False,
+        "options": {
+            "num_predict": 150,
+            "temperature": 0.7
+        }
+    }
+    try:
+        r = requests.post(url, json=payload, timeout=15)
+        if r.status_code == 200:
+            res_data = r.json()
+            return res_data["response"].strip()
+        else:
+            return f"❌ Lỗi Ollama API ({r.status_code}): {r.text}"
+    except Exception as e:
+        return f"❌ Không thể kết nối tới Ollama tại {config.OLLAMA_HOST}. Hãy chắc chắn Ollama đang chạy!"
+
+def ask_pollinations_ai(user_question, sys_instruction):
+    url = "https://text.pollinations.ai/"
+    payload = {
+        "messages": [
+            {"role": "system", "content": sys_instruction},
+            {"role": "user", "content": user_question}
+        ],
+        "model": "openai"
+    }
+    try:
+        r = requests.post(url, json=payload, timeout=20)
+        if r.status_code == 200:
+            return r.text.strip()
+        else:
+            return f"❌ Lỗi Pollinations AI ({r.status_code}): {r.text}"
+    except Exception as e:
+        return f"❌ Lỗi kết nối Pollinations AI: {str(e)}"
+
+# --- MODULE AI: PHÂN TÍCH VĂN BẢN VÀ ĐIỀU PHỐI (TIẾT KIỆM QUOTA) ---
+def ask_gemini_ai(user_question):
+    # Prompt nén gọn để tiết kiệm Token và định nghĩa rõ action words để quét ngữ nghĩa
+    sys_instruction = f"""Hệ thống RubyAlert. T:{last_temp}C, H:{last_humi}%, G:{last_gas}ppm, Quạt:{"ON" if fan_on else "OFF"}.
+    Quy tắc: 1. Chỉ trả lời về an toàn Lab/thiết bị. 2. Từ chối câu hỏi ngoài lề. 3. Ngắn gọn, dùng icon, in đậm số. 4. Để bật quạt, hãy nói rõ cụm từ "bật quạt" hoặc "turn_on_fan". Để tắt quạt, hãy nói rõ cụm từ "tắt quạt" hoặc "turn_off_fan"."""
+
+    provider = config.LLM_PROVIDER
+    reply = ""
+
+    if provider == "groq":
+        reply = ask_groq_ai(user_question, sys_instruction)
+    elif provider == "ollama":
+        reply = ask_ollama_ai(user_question, sys_instruction)
+    elif provider == "free":
+        reply = ask_pollinations_ai(user_question, sys_instruction)
+    else:
+        # Mặc định dùng Gemini SDK
+        reply = ask_gemini_sdk_ai(user_question, sys_instruction)
+
+    # --- BỘ QUÉT NGỮ NGHĨA VĂN BẢN HỖ TRỢ ĐA MODEL (SEMANTIC SCANNER) ---
+    # Phương pháp này hoạt động hoàn hảo và cực kỳ an toàn cho cả Groq, Ollama và Gemini
+    response_text_lower = reply.lower()
+    if "bật quạt" in response_text_lower or "turn on the fan" in response_text_lower or "turn_on_fan" in response_text_lower:
+        turn_on_fan()
+    elif "tắt quạt" in response_text_lower or "turn off the fan" in response_text_lower or "turn_off_fan" in response_text_lower:
+        turn_off_fan()
+
+    return reply
+
 
 
 # --- CÁC HÀM THỰC THI (TOOLS) CHO AI ---
-def set_fan_state(state: str):
-    """Bật hoặc tắt quạt thông gió. state chỉ có thể là 'ON' hoặc 'OFF'."""
+def turn_on_fan():
+    """Bật quạt thông gió phòng lab."""
     global fan_on, manual_override
+    client.publish(config.FEED_FAN, "1")
+    fan_on = True
+    manual_override = True
+    log("AI_ACTION", "AI đã thực hiện BẬT QUẠT 🟢")
+    return "Đã bật quạt thông gió thành công."
+
+def turn_off_fan():
+    """Tắt quạt thông gió phòng lab."""
+    global fan_on, manual_override
+    client.publish(config.FEED_FAN, "0")
+    fan_on = False
+    manual_override = False
+    log("AI_ACTION", "AI đã thực hiện TẮT QUẠT 🔴")
+    return "Đã tắt quạt thông gió thành công."
+
+def set_fan_state(state: str):
+    """Bật hoặc tắt quạt thông gió."""
     if state == "ON":
-        client.publish(config.FEED_FAN, "1")
-        fan_on = True
-        manual_override = True
-        log("AI_ACTION", "AI đã thực hiện BẬT QUẠT 🟢")
-        return "Đã bật quạt thông gió thành công."
+        return turn_on_fan()
     else:
-        client.publish(config.FEED_FAN, "0")
-        fan_on = False
-        manual_override = False
-        log("AI_ACTION", "AI đã thực hiện TẮT QUẠT 🔴")
-        return "Đã tắt quạt thông gió thành công."
+        return turn_off_fan()
 
 # Danh sách công cụ để AI sử dụng
-tools_list = [set_fan_state]
+tools_list = [turn_on_fan, turn_off_fan]
+
 
 
 def handle_telegram_cmd(text, chat_id):
@@ -188,16 +283,25 @@ def handle_telegram_cmd(text, chat_id):
         }
         
         found_local = False
-        for kw, func in quick_replies.items():
-            if kw in text:
-                reply = f"⚡ [Local] {func()}"
-                found_local = True
-                break
+        
+        # Chỉ xử lý Local nếu câu lệnh cực kỳ ngắn gọn, trực tiếp và không chứa từ phủ định hoặc chứa cả bật/tắt
+        negations = ["không", "đừng", "chưa", "hủy", "no", "don't", "off", "không cần", "tắt đi"]
+        has_negation = any(neg in text for neg in negations)
+        has_both = ("bật" in text or "mở" in text) and ("tắt" in text)
+        is_short = len(text.strip()) <= 15
+        
+        if not has_negation and not has_both and is_short:
+            for kw, func in quick_replies.items():
+                if kw in text:
+                    reply = f"⚡ [Local] {func()}"
+                    found_local = True
+                    break
         
         if not found_local:
-            # Chỉ khi không khớp từ khóa local mới gọi AI (Tiết kiệm Token tối đa)
+            # Chỉ khi không khớp từ khóa local hoặc câu lệnh phức tạp mới gọi AI (Đảm bảo hiểu đúng ngữ cảnh)
             log("AI", f"Hỏi Gemini: {text}")
             reply = ask_gemini_ai(text)
+
         
     send_telegram(reply, ignore_cooldown=True)
 

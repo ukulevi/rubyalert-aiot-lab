@@ -40,3 +40,10 @@ backups_chat_history/
 parsed_chat_history.md
 read_logs_scratch.py
 *.log
+
+# --- Ảnh chụp màn hình cá nhân nhạy cảm ---
+screen-capture/
+
+# --- Thư mục nháp và file tạm hệ thống ---
+scratch/
+.tempmediaStorage/
