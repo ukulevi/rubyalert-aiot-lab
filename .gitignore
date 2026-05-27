@@ -47,3 +47,11 @@ screen-capture/
 # --- Thư mục nháp và file tạm hệ thống ---
 scratch/
 .tempmediaStorage/
+
+# --- Editor-specific Agent Skills ---
+.agents/
+skills-lock.json
+
+# --- Slide Presentation Assets (Excluded) ---
+presentation/
+.stitch/

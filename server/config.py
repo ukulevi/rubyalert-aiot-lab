@@ -9,8 +9,8 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")  # Lấy tại aistudio.google.com
 
-# --- HỖ TRỢ ĐA MODEL (FREE DUCKDUCKGO, GEMINI, GROQ, OLLAMA) ĐỀ TĂNG QUOTA FREE ---
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "free").lower()  # "free" (DuckDuckGo GPT-4o-Mini - Không cần key, quota cực lớn), "gemini", "groq", "ollama"
+# --- HỖ TRỢ ĐA MODEL (FREE POLLINATIONS, GEMINI, GROQ, OLLAMA) ĐỂ TĂNG QUOTA FREE ---
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "free").lower()  # "free" (Pollinations AI - Không cần key, quota cực lớn), "gemini", "groq", "ollama"
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")  # qwen2.5:3b, llama3, gemma2

@@ -2,7 +2,8 @@
 
 % --- Core Packages ---
 \usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
+\usepackage[T5,T1]{fontenc}
+\usepackage[vietnamese, english]{babel}
 \usepackage{geometry}
 \geometry{margin=1in, top=1.2in, bottom=1.2in}
 \usepackage{graphicx}
@@ -16,6 +17,9 @@
 \usepackage{refcount}
 \usepackage{microtype}
 \usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{longtable}
 
 % --- TikZ Package & Libraries for Native Diagrams ---
 \usepackage{tikz}
@@ -26,12 +30,13 @@
 \definecolor{rubyred}{RGB}{155, 17, 30}
 \definecolor{charcoal}{RGB}{45, 45, 45}
 \definecolor{codebg}{RGB}{245, 245, 245}
+\definecolor{darkgreen}{RGB}{0, 100, 0}
 
 % --- Advanced tcolorbox for Code & Output ---
 \usepackage[most]{tcolorbox}
 \tcbuselibrary{listings}
 
-% Custom Code Box environment (matches page 22 of reference)
+% Custom Code Box environment
 \newtcblisting{codebox}[1][Python]{
     colback=codebg,
     colframe=black,
@@ -57,7 +62,7 @@
     }
 }
 
-% Custom Output Box environment (matches page 23 of reference)
+% Custom Output Box environment
 \newtcolorbox{outputbox}{
     colback=codebg,
     colframe=black,
@@ -82,15 +87,14 @@
     pdftitle={RubyAlert: Intelligent AIoT Lab Monitoring},
 }
 
-% --- Header/Footer Setup (Matches Reference Report) ---
+% --- Header/Footer Setup ---
 \pagestyle{fancy}
 \fancyhf{}
-\setlength{\headheight}{37pt} % Accommodate BK logo
+\setlength{\headheight}{37pt}
 
 \fancyhead[L]{
     \begin{minipage}{0.08\textwidth}
-        % Standard BK logo filename. Points to local hcmut.png
-        \includegraphics[width=\textwidth]{../../hcmut.png}
+        \includegraphics[width=\textwidth]{hcmut.png}
     \end{minipage}
     \hfill
     \begin{minipage}{0.90\textwidth}
@@ -121,7 +125,7 @@
 \pagenumbering{gobble}
 
 % =========================================================================
-% TITLE PAGE (Replicated from page 1 of reference Report.pdf)
+% TITLE PAGE
 % =========================================================================
 \begin{titlepage}
     \centering
@@ -132,7 +136,7 @@
     
     \begin{figure}[h]
         \centering
-        \includegraphics[width=3cm]{../../hcmut.png}
+        \includegraphics[width=3cm]{hcmut.png}
     \end{figure}
     
     \vspace*{1.5cm}
@@ -187,26 +191,57 @@
     \textbf{Open-Source Project Repository:} The entire codebase, including the simulated multi-model edge server, firmware scripts, and responsive dashboard files, is hosted publicly to support academic reproducibility and collaboration: \url{https://github.com/ukulevi/rubyalert-aiot-lab}
 \end{tcolorbox}
 
-\section{Background of the Study:}
-Laboratory safety represents one of the most critical aspects of academic and industrial research environments. High stress operations involving volatile solvents, pressurized gas channels, active electrical grids, and automated heaters are perpetually performed. In Vietnam, past fire anomalies and harmful chemical inhalations in research laboratories highlight the severe deficiency of proactive, autonomous safety architectures. Conventional IoT implementations are largely static, displaying telemetry on isolated physical screens or simple web views without remote control loops or natural-language interaction capacities.
+\section{Background of the Study}
+Laboratory safety represents one of the most critical aspects of academic and industrial research environments. Universities, in particular, host a wide spectrum of activities ranging from routine chemical synthesis to high-power electronic prototyping, all conducted in shared, multi-purpose lab spaces that often lack dedicated, continuous monitoring infrastructure.
 
-The rapid rise of the \emph{Artificial Intelligence of Things (AIoT)} allows engineers to merge local microcontrollers with state-of-the-art Large Language Models (LLMs) like Google Gemini. This paradigm shifts safety monitoring from a classic passive/reactive rule-check model to a cognitive, self-governing ecosystem.
+In Vietnam, past incidents of fire anomalies, harmful chemical inhalations, and undetected gas leaks in research laboratories highlight the severe deficiency of proactive, autonomous safety architectures. According to fire prevention authorities, laboratory fires caused by electrical faults and chemical spills accounted for a significant portion of campus safety incidents reported between 2020 and 2025. These events underscore the urgent need for intelligent, real-time monitoring systems that can detect threats before they escalate into catastrophic incidents.
 
-\section{Research Objectives:}
+Conventional IoT implementations deployed in laboratory environments are largely \emph{static}: they display telemetry on isolated physical screens or simple web views without closed-loop remote control capabilities, natural-language interaction capacity, or predictive reasoning. Such systems can notify operators \emph{after} a threshold is breached, but they cannot \emph{anticipate} a developing hazard or \emph{reason} about the appropriate corrective action.
+
+The rapid rise of the \emph{Artificial Intelligence of Things (AIoT)} paradigm allows engineers to merge low-cost edge microcontrollers with state-of-the-art Large Language Models (LLMs) such as Google Gemini, Meta LLaMA, and Groq-hosted models. This paradigm shifts safety monitoring from a classic passive/reactive rule-check model to a \textbf{cognitive, self-governing ecosystem} where the system can understand natural-language commands, autonomously evaluate risk profiles, and proactively engage safety actuators before traditional threshold-based alarms would trigger.
+
+This project, named \textbf{RubyAlert}, proposes and implements a complete AIoT laboratory safety system that combines real-time sensory telemetry, edge intelligence, cloud-based natural language understanding, and a bidirectional communication layer to create a truly intelligent laboratory guardian.
+
+\section{Research Objectives}
 The primary objectives of this study are defined as:
-\begin{enumerate}
-    \item \textbf{Real-time Telemetry Collection:} Design a physical sensory node using the ESP32 to track Temperature, Humidity, and Gas/Smoke parameters via DHT22 and MQ-2 inputs.
-    \item \textbf{High-Availability Dashboard:} Build a sleek Web Dashboard based on modern design systems displaying low-latency telemetry streams via WebSockets.
-    \item \textbf{Bi-directional Alerting Infrastructure:} Configure a Telegram Chatbot delivering unified notifications to operators while accommodating remote control parameters.
-    \item \textbf{Cognitive AI Orchestration:} Program Google Gemini AI to act as a reactive lab assistant, execute hardware configurations via Function Calling, and autonomously initiate emergency controls (e.g., fan actuation) when relative risks emerge.
+\begin{enumerate}[leftmargin=2cm]
+    \item \textbf{Real-time Telemetry Collection:} Design and deploy a physical sensory node using the ESP32 microcontroller to continuously track Temperature, Humidity, and Gas/Smoke parameters via DHT22 and MQ-2 sensor inputs with a 10-second sampling interval.
+    \item \textbf{High-Availability Web Dashboard:} Build a responsive, modern Web Dashboard using TailwindCSS and Chart.js that displays low-latency telemetry streams via MQTT-over-WebSocket, provides live historical graphing, and offers direct actuator control through an intuitive toggle interface.
+    \item \textbf{Bi-directional Alerting Infrastructure:} Configure a Telegram Chatbot delivering unified alert notifications to laboratory operators while accommodating remote control commands (\texttt{/status}, \texttt{/fan\_on}, \texttt{/fan\_off}, \texttt{/report}, \texttt{/dashboard}) and free-form natural language queries.
+    \item \textbf{Cognitive AI Orchestration:} Program a multi-model AI integration layer supporting Google Gemini, Groq (LLaMA 3.1), local Ollama instances, and a free Pollinations AI fallback to act as a reactive lab assistant. The AI executes hardware configurations via Function Calling and Semantic Text Scanning, and autonomously initiates emergency controls (e.g., fan actuation) when relative risks emerge.
+    \item \textbf{Edge Fault-Tolerance:} Implement local rule-based safety mechanisms including hysteresis automation, rate-of-change spike detection, sensor fault isolation, and manual override priority to guarantee system reliability even when cloud services are unavailable.
 \end{enumerate}
 
 \section{Scope and Limitations}
-The research parameters are structured as:
-\begin{itemize}
-    \item \textbf{Scope:} Deployment is confined to a singular, standard university chemistry/IoT laboratory. Actuation is simulated through a 5V relay driving a DC ventilation fan, supplemented with an active warning buzzer.
-    \item \textbf{Limitations:} Messages are transmitted over the public \texttt{broker.emqx.io} MQTT Broker. Telemetry parameters are focused on relative hazard thresholds rather than absolute molecular spectrometry measurements.
+The research parameters and constraints are structured as follows:
+
+\subsection{Scope}
+\begin{itemize}[leftmargin=1.5cm]
+    \item \textbf{Physical Deployment:} The system is designed for deployment in a singular, standard university chemistry/IoT laboratory room. The sensory node monitors three environmental parameters: temperature, relative humidity, and combustible gas concentration.
+    \item \textbf{Actuation:} Actuation is implemented through a 5V single-channel relay module driving a DC ventilation fan, supplemented with an active piezoelectric warning buzzer for audible alerts.
+    \item \textbf{Communication:} All MQTT communication between the ESP32 node, edge server, and dashboard is conducted through a locally hosted Mosquitto MQTT Broker, providing isolation and reliability for academic demonstrations.
+    \item \textbf{AI Models:} The system supports four AI backends (Gemini, Groq, Ollama, Pollinations) with automatic fallback mechanisms to ensure 24/7 chatbot availability regardless of individual API quotas.
 \end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Telemetry parameters are focused on relative hazard thresholds rather than absolute molecular spectrometry measurements. The MQ-2 sensor provides a general combustible gas concentration reading, not chemical-specific identification.
+    \item The web dashboard does not implement user authentication or role-based access control, as the system is intended for trusted, single-laboratory deployment.
+    \item Long-term telemetry persistence (database logging) is not implemented in the current version; data is retained only in the Chart.js live buffer (last 30 readings).
+    \item The system relies on Wi-Fi connectivity; operation in environments without reliable wireless infrastructure would require hardware modifications.
+\end{itemize}
+
+\section{Report Structure}
+This report is organized into six chapters:
+\begin{itemize}[leftmargin=1.5cm]
+    \item \textbf{Chapter 1 -- Introduction:} Provides the motivation, objectives, and scope of the project.
+    \item \textbf{Chapter 2 -- Foundational Knowledge:} Reviews the theoretical foundations of IoT architecture, MQTT protocol, hardware specifications, and AIoT integration.
+    \item \textbf{Chapter 3 -- System Design:} Presents the hardware schematic, system architecture, and edge automation algorithms.
+    \item \textbf{Chapter 4 -- Methodology and Implementation:} Details the firmware development, server-side logic, AI multi-model integration, web dashboard construction, and Telegram chatbot implementation.
+    \item \textbf{Chapter 5 -- Experimental Results:} Documents system testing evidence including dashboard screenshots, Telegram conversation logs, and a comprehensive verification matrix.
+    \item \textbf{Chapter 6 -- Conclusion:} Summarizes key contributions and outlines the future development roadmap.
+\end{itemize}
+
 
 % =========================================================================
 % CHAPTER 2: FOUNDATIONAL KNOWLEDGE
@@ -214,31 +249,149 @@ The research parameters are structured as:
 \chapter{Foundational Knowledge}
 \label{ch:foundations}
 
+This chapter reviews the theoretical foundations and technology standards upon which the RubyAlert system is constructed. Understanding these fundamentals is essential for appreciating the design decisions documented in subsequent chapters.
+
 \section{Internet of Things (IoT) Architecture}
-The system layout conforms to the standard three-tier IoT architectural standard:
-\begin{enumerate}
-    \item \textbf{Perception Layer:} Comprises the ESP32 microcontroller interfaced with the DHT22 and MQ-2 physical sensors, a 5V relay, and a piezoelectric buzzer.
-    \item \textbf{Network Layer:} Uses MQTT over Wi-Fi for telemetry delivery, plus HTTPS and WSS channels for AI cloud calls and web synchronization.
-    \item \textbf{Application Layer:} Entails the central Python Edge server, the Telegram Chatbot daemon, the HTML5 Web Dashboard, and the Google Gemini NLU API.
+The Internet of Things (IoT) refers to the network of physical objects embedded with sensors, software, and connectivity that enables them to collect and exchange data. The standard IoT reference architecture consists of three primary layers \cite{mqtt}:
+
+\begin{enumerate}[leftmargin=2cm]
+    \item \textbf{Perception Layer (Sensing):} This is the physical hardware layer that interfaces with the real world. It comprises microcontrollers, sensors, and actuators that capture environmental data and execute physical actions. In RubyAlert, this layer includes the ESP32 microcontroller interfaced with the DHT22 temperature/humidity sensor, the MQ-2 gas sensor, a 5V relay module, and a piezoelectric buzzer.
+    
+    \item \textbf{Network Layer (Transport):} This layer handles the bidirectional communication of telemetry data and control commands between the perception layer and the application layer. RubyAlert employs multiple protocols at this layer:
+    \begin{itemize}
+        \item \textbf{MQTT} over TCP/IP for sensor-to-server telemetry and fan control commands.
+        \item \textbf{MQTT over WebSocket (WSS)} for real-time dashboard data streaming.
+        \item \textbf{HTTPS} for Telegram Bot API communication and cloud AI API calls.
+    \end{itemize}
+    
+    \item \textbf{Application Layer (Processing \& Presentation):} This layer processes incoming data, applies business logic, and presents results to end users. In RubyAlert, this encompasses:
+    \begin{itemize}
+        \item The Python Edge Server (\texttt{smart\_lab\_system.py}) with rule engine and AI orchestration.
+        \item The HTML5/TailwindCSS Web Dashboard with Chart.js visualization.
+        \item The Telegram Chatbot with natural language understanding.
+    \end{itemize}
 \end{enumerate}
 
-\section{Communication Protocol Selection}
-For physical-node to edge-server exchange, \textbf{MQTT (Message Queuing Telemetry Transport)} was chosen over standard HTTP due to its low header footprint (2 bytes minimum vs. kilobytes in HTTP headers), minimal network bandwidth, and native publish/subscribe messaging, which is ideal for real-time telemetry systems.
+\section{Communication Protocol: MQTT}
+For sensor-to-server data exchange, \textbf{MQTT (Message Queuing Telemetry Transport)} was chosen over standard HTTP REST APIs. MQTT is an OASIS standard messaging protocol designed for constrained devices and low-bandwidth, high-latency networks \cite{mqtt}. The key advantages that justified this selection are:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Criterion} & \textbf{MQTT} & \textbf{HTTP REST} \\ \hline
+        Minimum Header Size & 2 bytes & $\sim$700+ bytes \\ \hline
+        Connection Model & Persistent TCP & Per-request TCP \\ \hline
+        Message Pattern & Publish/Subscribe & Request/Response \\ \hline
+        Real-time Capability & Native (event-driven) & Polling required \\ \hline
+        Power Consumption & Very Low & Moderate--High \\ \hline
+        Bidirectional Control & Yes (via topics) & Requires WebSocket \\ \hline
+    \end{tabular}
+    \caption{Comparison of MQTT vs. HTTP REST for IoT Telemetry}
+    \label{tab:mqtt_vs_http}
+\end{table}
+
+MQTT operates on a \emph{publish/subscribe} model mediated by a central \textbf{Broker}. In this architecture:
+\begin{itemize}
+    \item The ESP32 node \textbf{publishes} telemetry JSON payloads to the topic \texttt{rubyalert/lab\_1/telemetry}.
+    \item The Edge Server and Web Dashboard \textbf{subscribe} to the same topic to receive real-time updates.
+    \item Fan control commands are published to the topic \texttt{rubyalert/lab\_1/fan} with payloads \texttt{"1"} (ON) or \texttt{"0"} (OFF).
+\end{itemize}
+
+The MQTT Broker used in this project is \textbf{Eclipse Mosquitto}, configured locally on the edge server with a custom port (1884 for TCP, 9002 for WebSocket) to avoid conflicts with other services. The Mosquitto configuration file specifies two listeners:
+
+\begin{codebox}[Python]
+# local_mosquitto.conf
+listener 1884
+allow_anonymous true
+listener 9002
+protocol websockets
+\end{codebox}
 
 \section{Core Hardware Modules}
+The following hardware components form the perception layer of the RubyAlert system:
+
+\subsection{ESP32 Microcontroller Unit (MCU)}
+The ESP32, manufactured by Espressif Systems \cite{esp32}, is a dual-core 32-bit Xtensa LX6 CPU running at up to 240 MHz. It integrates Wi-Fi 802.11 b/g/n and Bluetooth 4.2/BLE on a single chip, making it ideal for IoT applications requiring wireless connectivity. Key specifications relevant to this project include:
 \begin{itemize}
-    \item \textbf{ESP32 MCU:} A dual-core 32-bit CPU running at 240MHz, offering integrated Wi-Fi/Bluetooth, extensive hardware GPIO pins, and an internal 12-bit ADC essential for reading the analog voltage of the MQ-2 sensor.
-    \item \textbf{DHT22 Digital Sensor:} Utilizes a capacitive humidity sensor and a thermistor to measure surrounding air, outputting a calibrated digital signal on a single-wire bus (Temperature: $-40$ to $80^\circ$C $\pm 0.5^\circ$C; Humidity: $0$-$100\%$ RH $\pm 2\%$).
-    \item \textbf{MQ-2 Gas Sensor:} Features a tin dioxide ($\text{SnO}_2$) semiconductor layer. When exposed to combustible gases (LPG, Propane, CO, Methane, Smoke), the surface conductivity increases, yielding an analog output voltage directly proportional to gas density.
+    \item \textbf{GPIO:} 34 programmable General-Purpose Input/Output pins supporting digital I/O, ADC, DAC, PWM, I2C, SPI, and UART interfaces.
+    \item \textbf{ADC:} Two 12-bit Successive Approximation Register (SAR) ADCs (ADC1 and ADC2) providing analog-to-digital conversion across 18 channels with configurable attenuation up to 3.6V input range.
+    \item \textbf{Memory:} 520 KB SRAM, 448 KB ROM, with support for external SPI flash up to 16 MB.
+    \item \textbf{Programming:} Supports Arduino framework (C/C++) and MicroPython for rapid prototyping.
 \end{itemize}
 
-\section{Artificial Intelligence in IoT (AIoT)}
-Rather than executing static scripts, the RubyAlert system embeds \textbf{Google Gemini AI} to introduce cognitive reasoning at the edge. By utilizing \textbf{Function Calling}, the LLM maps natural-language instructions to automated backend commands. The \textbf{3-Tier AI System Model} implemented in this work is structured as follows:
+In this project, the ESP32 is programmed using \textbf{MicroPython}, which provides a high-level Python runtime directly on the microcontroller, enabling rapid development and easy debugging via REPL (Read-Eval-Print Loop).
+
+\subsection{DHT22 Digital Temperature and Humidity Sensor}
+The DHT22 (also known as AM2302) utilizes a capacitive humidity sensor and a negative temperature coefficient (NTC) thermistor to measure surrounding air conditions. It communicates via a proprietary single-wire digital protocol:
 \begin{itemize}
-    \item \textbf{Tier 1: Reactive Assistant:} Generates environmental audit reports and answers descriptive lab queries.
-    \item \textbf{Tier 2: Agentic Actor:} Parses conversational intent and actuates relays (e.g., turning on the fan when the user states ``it feels hot in here'').
-    \item \textbf{Tier 3: Autonomous Supervisor:} Evaluates early hazard escalation and autonomously acts before standard local alarms trigger.
+    \item \textbf{Temperature Range:} $-40$ to $80^{\circ}$C with accuracy of $\pm 0.5^{\circ}$C.
+    \item \textbf{Humidity Range:} $0$--$100\%$ RH with accuracy of $\pm 2\%$ RH.
+    \item \textbf{Sampling Period:} Minimum 2 seconds between consecutive reads.
+    \item \textbf{Output:} 40-bit serial data (16-bit humidity + 16-bit temperature + 8-bit checksum).
 \end{itemize}
+
+The sensor is connected to GPIO 4 on the ESP32. The MicroPython \texttt{dht} library handles the timing-critical single-wire protocol automatically.
+
+\subsection{MQ-2 Gas and Smoke Sensor}
+The MQ-2 sensor features a tin dioxide ($\text{SnO}_2$) semiconductor sensing element. In clean air, $\text{SnO}_2$ has relatively high resistance. When exposed to combustible gases (LPG, Propane, Carbon Monoxide, Methane, and general Smoke), the presence of reducing gases lowers the surface resistance of $\text{SnO}_2$, producing an analog output voltage directly proportional to gas concentration.
+
+Key specifications:
+\begin{itemize}
+    \item \textbf{Detection Range:} 200--10,000 ppm for combustible gases.
+    \item \textbf{Output:} Analog voltage (0--3.3V when configured with ESP32 ADC attenuation at 11dB).
+    \item \textbf{Warm-up Time:} Approximately 20 seconds for stable readings.
+    \item \textbf{Operating Voltage:} 5V DC for the heating element, with a separate analog output pin.
+\end{itemize}
+
+The analog output (AO pin) is connected to GPIO 34 on the ESP32, which is one of the input-only ADC1 channels. The ESP32 ADC attenuation is configured to \texttt{ADC.ATTN\_11DB} to support the full 0--3.6V input range, mapping to digital values of 0--4095 (12-bit resolution).
+
+\subsection{5V Relay Module and DC Fan}
+The relay module provides electrical isolation between the ESP32's 3.3V logic and the 5V DC fan motor circuit. When GPIO 27 outputs a HIGH signal, the relay closes the fan circuit, activating the ventilation fan. This design protects the microcontroller from back-EMF generated by the motor's inductive load.
+
+\subsection{Active Piezoelectric Buzzer}
+The active buzzer connected to GPIO 26 contains an internal oscillator circuit, requiring only a DC voltage to produce a continuous tone. It is used for localized audible alerts when critical thresholds are breached, ensuring that laboratory personnel are immediately aware of hazardous conditions even if they are not monitoring digital displays.
+
+\section{Artificial Intelligence in IoT (AIoT)}
+\label{sec:aiot_foundation}
+
+Rather than executing static if-then scripts, the RubyAlert system embeds AI reasoning capabilities directly into the edge server. This section describes the conceptual framework.
+
+\subsection{Google Gemini AI and Function Calling}
+Google Gemini \cite{gemini} is a family of multimodal large language models developed by Google DeepMind. The RubyAlert system utilizes the \texttt{gemini-2.0-flash} model variant, which provides:
+\begin{itemize}
+    \item \textbf{Natural Language Understanding (NLU):} Ability to interpret free-form Vietnamese and English instructions and map them to structured intents.
+    \item \textbf{Function Calling:} A mechanism where the model outputs structured JSON describing which tool to invoke and with what parameters, rather than generating free-text responses. This allows the AI to directly control physical actuators.
+    \item \textbf{Context Window:} Up to 1 million tokens, enabling rich system prompts with environmental context.
+\end{itemize}
+
+\subsection{Multi-Model AI Architecture}
+To overcome API quota limitations inherent to free-tier usage and ensure 24/7 chatbot availability, RubyAlert implements a \textbf{multi-model AI router} supporting four distinct backends:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|c|}
+        \hline
+        \textbf{Provider} & \textbf{Model} & \textbf{API Type} & \textbf{Requires Key?} \\ \hline
+        Gemini & gemini-2.0-flash & Google GenAI SDK & Yes \\ \hline
+        Groq & llama-3.1-8b-instant & OpenAI-compatible REST & Yes \\ \hline
+        Ollama & qwen2.5:3b (configurable) & Local REST API & No \\ \hline
+        Pollinations & openai (GPT-4o-Mini) & Free REST API & No \\ \hline
+    \end{tabular}
+    \caption{Supported AI Model Backends in RubyAlert}
+    \label{tab:ai_models}
+\end{table}
+
+The active provider is selected via the \texttt{LLM\_PROVIDER} environment variable in the configuration file, defaulting to \texttt{"free"} (Pollinations AI) for zero-cost, unlimited-quota operation.
+
+\subsection{Three-Tier AI System Model}
+The AI capabilities are structured into three operational tiers:
+\begin{enumerate}[leftmargin=2cm]
+    \item \textbf{Tier 1 -- Reactive Assistant:} Responds to user queries about current sensor readings, generates environmental audit reports, and answers descriptive questions about laboratory safety protocols.
+    \item \textbf{Tier 2 -- Agentic Actor:} Parses conversational intent from natural language (e.g., ``it feels hot in here'' $\rightarrow$ turn on fan) and actuates relays through Function Calling or Semantic Text Scanning.
+    \item \textbf{Tier 3 -- Autonomous Supervisor:} Proactively evaluates early hazard escalation when gas levels enter a ``risk zone'' (above 60\% of the critical threshold but below the hard limit) and autonomously activates ventilation with a 5-minute cooldown between AI-driven interventions to conserve API tokens.
+\end{enumerate}
+
 
 % =========================================================================
 % CHAPTER 3: SYSTEM DESIGN
@@ -246,25 +399,33 @@ Rather than executing static scripts, the RubyAlert system embeds \textbf{Google
 \chapter{System Design}
 \label{ch:design}
 
+This chapter presents the complete system design, from hardware connections to software architecture and the algorithmic logic that governs automated responses.
+
 \section{Hardware Schematic \& Connection Specifications}
-The ESP32 pin configuration is systematically mapped in Table~\ref{tab:pinout}.
+The ESP32 pin configuration is systematically mapped in Table~\ref{tab:pinout}. Each connection was selected based on pin capability constraints (e.g., ADC1 channels for analog input, standard GPIO for digital output).
 
 \begin{table}[H]
     \centering
-    \begin{tabular}{|l|l|l|l|}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}p{1.7cm}|>{\raggedright\arraybackslash}p{2.6cm}|X|}
         \hline
-        \textbf{Component} & \textbf{Sensor Pin} & \textbf{ESP32 GPIO} & \textbf{Signal Type} \\ \hline
-        DHT22 & OUT & GPIO 4 & Digital I/O \\ \hline
-        MQ-2 & AO (Analog Out) & GPIO 34 & Analog Input (ADC1) \\ \hline
-        Relay Module & IN & GPIO 27 & Digital Output \\ \hline
-        Active Buzzer & Positive (+) & GPIO 26 & Digital Output \\ \hline
-    \end{tabular}
+        \textbf{Component} & \textbf{Sensor Pin} & \textbf{ESP32 GPIO} & \textbf{Signal Type} & \textbf{Notes} \\ \hline
+        DHT22 & OUT & GPIO 4 & Digital I/O & Single-wire protocol; requires 10k$\Omega$ pull-up resistor \\ \hline
+        MQ-2 & AO (Analog Out) & GPIO 34 & Analog Input (ADC1\_CH6) & 11dB attenuation for 0--3.6V range \\ \hline
+        Relay Module & IN & GPIO 27 & Digital Output & Active HIGH configuration \\ \hline
+        Active Buzzer & Positive (+) & GPIO 26 & Digital Output & Internal oscillator; DC-driven \\ \hline
+    \end{tabularx}
     \caption{ESP32 Hardware Pin Connections}
     \label{tab:pinout}
 \end{table}
 
-\section{System Architecture Vector Drawing}
-To represent the data pathways and physical hardware nodes within RubyAlert, Figure~\ref{fig:tikz_arch} details the complete AIoT telemetry network.
+\textbf{Power Supply Configuration:} The ESP32 is powered via USB (5V), which also provides the 5V rail for the relay module and active buzzer through the VIN pin. The DHT22 operates at 3.3V supplied by the ESP32's onboard voltage regulator. The MQ-2 sensor's heating element requires a dedicated 5V supply, connected to the ESP32's VIN rail.
+
+\section{System Architecture}
+\label{sec:architecture}
+The complete RubyAlert system follows a distributed architecture with four major subsystems communicating through the MQTT Broker as a central message bus. Figure~\ref{fig:tikz_arch} illustrates the data flow between all components.
 
 \begin{figure}[H]
     \centering
@@ -276,21 +437,21 @@ To represent the data pathways and physical hardware nodes within RubyAlert, Fig
     ]
         % Nodes
         \node [block] (esp) {\textbf{Perception Layer}\\[0.5em]ESP32 MCU \\ (DHT22 \& MQ-2)};
-        \node [block, right=of esp] (mqtt) {\textbf{Network Broker}\\[0.5em]MQTT Broker \\ (\texttt{broker.emqx.io})};
+        \node [block, right=of esp] (mqtt) {\textbf{Network Broker}\\[0.5em]Mosquitto MQTT \\ (Port 1884/9002)};
         \node [block, right=of mqtt] (edge) {\textbf{Python Edge Server}\\[0.5em]Rule Engine \\ (Smart Lab System)};
         \node [block, below=of esp] (act) {\textbf{Actuators}\\[0.5em]5V Relay $\rightarrow$ Fan \\ Piezo Buzzer};
-        \node [cloud, below=of edge] (gemini) {\textbf{Google Gemini AI}\\[0.5em]Function Calling};
+        \node [cloud, below=of edge] (gemini) {\textbf{Multi-Model AI}\\[0.5em]Gemini / Groq / Ollama \\ / Pollinations};
         \node [cloud, below=of mqtt] (tele) {\textbf{Telegram Client}\\[0.5em]Bidirectional Chatbot};
-        \node [block, above=of mqtt] (dash) {\textbf{Web Dashboard}\\[0.5em]Tailwind CSS / WSS};
+        \node [block, above=of mqtt] (dash) {\textbf{Web Dashboard}\\[0.5em]TailwindCSS / Chart.js \\ MQTT-over-WS};
 
         % Connectors
-        \draw [arrow] ([yshift=2mm]esp.east) -- node[above, font=\scriptsize] {Publish} ([yshift=2mm]mqtt.west);
-        \draw [arrow] ([yshift=-2mm]mqtt.west) -- node[below, font=\scriptsize, fill=white, inner sep=1pt] {Fan command} ([yshift=-2mm]esp.east);
+        \draw [arrow] ([yshift=2mm]esp.east) -- node[above, font=\scriptsize] {Publish JSON} ([yshift=2mm]mqtt.west);
+        \draw [arrow] ([yshift=-2mm]mqtt.west) -- node[below, font=\scriptsize, fill=white, inner sep=1pt] {Fan cmd} ([yshift=-2mm]esp.east);
         \draw [arrow] ([yshift=2mm]mqtt.east) -- node[above, font=\scriptsize] {Subscribe} ([yshift=2mm]edge.west);
-        \draw [arrow] ([yshift=-2mm]edge.west) -- node[below, font=\scriptsize, fill=white, inner sep=1pt] {Relay command} ([yshift=-2mm]mqtt.east);
+        \draw [arrow] ([yshift=-2mm]edge.west) -- node[below, font=\scriptsize, fill=white, inner sep=1pt] {Relay cmd} ([yshift=-2mm]mqtt.east);
         \draw [arrow] (mqtt) -- node[left, font=\scriptsize] {WSS} (dash);
         \draw [arrow] (edge) -- node[left, font=\scriptsize] {API Call} (gemini);
-        \draw [arrow] (gemini) -- node[right, font=\scriptsize] {Function} (edge);
+        \draw [arrow] (gemini) -- node[right, font=\scriptsize] {Response} (edge);
         \draw [arrow] (edge) -- node[right, font=\scriptsize] {HTTPS} (tele);
         
         \draw [arrow] (esp.south) -- node[left, font=\scriptsize] {GPIO} (act.north);
@@ -299,32 +460,87 @@ To represent the data pathways and physical hardware nodes within RubyAlert, Fig
     \label{fig:tikz_arch}
 \end{figure}
 
+\subsection{Data Flow Description}
+The end-to-end data flow operates as follows:
+\begin{enumerate}[leftmargin=2cm]
+    \item The \textbf{ESP32 Node} reads sensor data every 10 seconds, packages it into a JSON payload (\texttt{\{"temperature": T, "humidity": H, "gas": G\}}), and publishes it to the MQTT topic \texttt{rubyalert/lab\_1/telemetry}.
+    \item The \textbf{Mosquitto Broker} relays the message to all subscribers: the Python Edge Server (via TCP on port 1884) and the Web Dashboard (via WebSocket on port 9002).
+    \item The \textbf{Edge Server} receives the telemetry, runs it through the local rule engine (hysteresis, rate-of-change, sensor fault checks), and publishes fan commands to \texttt{rubyalert/lab\_1/fan} when thresholds are breached.
+    \item Simultaneously, the \textbf{Telegram polling thread} on the Edge Server checks for incoming user messages every 2 seconds. User commands are processed locally (for simple keywords) or forwarded to the AI backend (for complex queries).
+    \item The \textbf{Web Dashboard} renders incoming telemetry in real-time: updating metric cards, appending data points to the Chart.js graph, and logging system events.
+\end{enumerate}
+
+\section{Software Architecture}
+\label{sec:software_arch}
+
+The server-side software is organized into modular Python files:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|p{9cm}|}
+        \hline
+        \textbf{File} & \textbf{Purpose} \\ \hline
+        \texttt{config.py} & Centralized configuration: API keys, MQTT broker address/port, LLM provider selection, MQTT topics. Loads from \texttt{.env} file. \\ \hline
+        \texttt{smart\_lab\_system.py} & Main edge server: MQTT client, telemetry processing, AIoT rule engine, Telegram bot, multi-model AI router, fan control functions. \\ \hline
+        \texttt{esp32\_simulator.py} & Standalone ESP32 simulator that generates random telemetry data for testing without physical hardware. \\ \hline
+        \texttt{lab\_analytics\_backend.py} & Lightweight analytics backend that subscribes to all MQTT topics for debugging and threshold-based alerting. \\ \hline
+        \texttt{local\_mosquitto.conf} & Mosquitto Broker configuration specifying TCP (1884) and WebSocket (9002) listeners. \\ \hline
+    \end{tabular}
+    \caption{Server-side File Structure}
+    \label{tab:file_structure}
+\end{table}
+
 \section{Centralized Edge Automation Algorithms}
-To safeguard hardware integrity and ensure rapid reaction times, localized edge logic overrides cloud loops:
+To safeguard hardware integrity and ensure rapid reaction times independent of cloud availability, localized edge logic overrides cloud-dependent AI processing:
 
 \subsection{Hysteresis Automation}
-To relieve stress on the physical relay components caused by high-frequency switching near critical thresholds, a hysteresis band is enforced:
+To prevent relay chattering---the rapid on/off switching of the fan near critical thresholds that can damage relay contacts and reduce fan motor lifespan---a hysteresis band is enforced. The system uses two separate threshold values:
 \begin{align}
-    T_{\text{activation}} &= 35^\circ\text{C} \\
-    T_{\text{deactivation}} &= 32^\circ\text{C}
+    T_{\text{activation}} &= 35^{\circ}\text{C} \quad (\text{Fan turns ON}) \\
+    T_{\text{deactivation}} &= 32^{\circ}\text{C} \quad (\text{Fan turns OFF})
 \end{align}
-The actuator stays active until telemetry falls below the safe deactivation limits.
+
+This creates a 3°C dead-band: once the fan is activated at 35°C, it remains active until temperature drops below 32°C. Similarly, gas thresholds use a 60\% deactivation ratio:
+\begin{align}
+    G_{\text{activation}} &= 2000 \text{ ppm} \\
+    G_{\text{deactivation}} &= 1200 \text{ ppm} \quad (= 2000 \times 0.6)
+\end{align}
 
 \subsection{Rate of Change (RoC) Detection}
-Sudden thermal spikes indicative of chemical fires are computed over localized histories:
+Sudden thermal spikes indicative of chemical fires or electrical faults are detected by comparing consecutive temperature readings:
 \begin{equation}
     \text{RoC} = T_{\text{current}} - T_{t-10\text{s}}
 \end{equation}
-If $\text{RoC} \ge 3^\circ$C in under 10 seconds, the active buzzer and high-priority SMS notifications are immediately fired.
+If $\text{RoC} \ge 3^{\circ}$C within a single 10-second sampling interval, the system logs a spike event and appends a warning annotation to the Telegram alert message. This allows operators to distinguish between gradual temperature increases (e.g., HVAC changes) and potentially dangerous rapid rises.
 
 \subsection{Sensor Fault-Tolerance \& Hardware-Safe Fallbacks}
-If a sensor is physically severed, the ESP32 intercepts empty (NaN) data. The edge server identifies this, immediately suspending automated script blocks to prevent false actuation, and activates a safe default state.
+When the DHT22 sensor is physically disconnected or malfunctions, the MicroPython driver returns default values of 0.0°C and 0.0\% humidity. The edge server detects this specific pattern:
+
+\begin{codebox}[Python]
+# Sensor Fault Detection Logic
+if t == 0.0 and h == 0.0:
+    log("SENSOR_ERROR", "DHT22 fault detected")
+    # Send hardware warning via Telegram (1-min cooldown)
+    send_telegram("DHT22 sensor error. Check wiring.")
+    # Preserve last valid temperature/humidity readings
+    # Continue gas-only protection logic
+    if g > GAS_LIMIT:
+        client.publish(config.FEED_FAN, "1")
+    return
+\end{codebox}
+
+This ensures that a single sensor failure does not disable the entire safety system. The gas monitoring subsystem continues operating independently with full threshold logic.
 
 \subsection{Manual Override Priority}
-To respect human authority, manual toggle commands issued via the Web Dashboard or Telegram raise a \texttt{manual\_override} flag, temporarily pausing the automatic rule engine.
+To respect human authority over automated systems, manual toggle commands issued via the Web Dashboard or Telegram raise a \texttt{manual\_override} flag. While this flag is set:
+\begin{itemize}
+    \item The automatic hysteresis rule engine is \textbf{paused} for the fan actuator.
+    \item Gas-related safety overrides still function (safety-critical exceptions).
+    \item The flag is automatically cleared when a critical threshold override occurs, ensuring that safety always takes precedence over manual control.
+\end{itemize}
 
 \subsection{Algorithmic Flowchart}
-The logic execution path of the localized edge computing platform is mapped in Figure~\ref{fig:tikz_flowchart}.
+The complete logic execution path of the localized edge computing platform is mapped in Figure~\ref{fig:tikz_flowchart}.
 
 \begin{figure}[H]
     \centering
@@ -343,7 +559,7 @@ The logic execution path of the localized edge computing platform is mapped in F
         \node [process, right=of fault, xshift=1.5cm] (safe) {Bypass Rules \\ Trigger SOS / Safe State};
         \node [decision, below=of fault, yshift=-0.5cm] (override) {Manual Override?};
         \node [process, right=of override, xshift=1.5cm] (bypass) {Bypass Auto-logic \\ Retain Actuator State};
-        \node [decision, below=of override, yshift=-0.5cm] (limits) {$T > 35^\circ$C OR $G > 2000$ppm?};
+        \node [decision, below=of override, yshift=-0.5cm] (limits) {$T > 35^{\circ}$C OR $G > 2000$ppm?};
         \node [process, below=of limits, yshift=-0.5cm] (actuate) {Actuate Fan (ON) \\ Activate local buzzer};
         \node [process, left=of limits, xshift=-1.5cm] (safe_state) {Actuate Fan (OFF) \\ Silent buzzer};
 
@@ -367,56 +583,330 @@ The logic execution path of the localized edge computing platform is mapped in F
     \label{fig:tikz_flowchart}
 \end{figure}
 
+
 % =========================================================================
-% CHAPTER 4: METHODOLOGY AND INTEGRATION CODE
+% CHAPTER 4: METHODOLOGY AND IMPLEMENTATION
 % =========================================================================
-\chapter{Methodology}
+\chapter{Methodology and Implementation}
 \label{ch:methodology}
 
-\section{Firmware and Server Development}
-The ESP32 node is programmed using \textbf{MicroPython} for modular, rapid scripting. The central backend server is implemented in \textbf{Python 3} utilizing the Google GenAI SDK and Paho MQTT library.
+This chapter provides a detailed account of the implementation of each subsystem, including code excerpts, configuration details, and design rationale.
 
-An illustrative example of the centralized server-side telemetry ingest and rule engine is shown below:
+\section{ESP32 Firmware Development (MicroPython)}
+The ESP32 firmware is written in \textbf{MicroPython} and stored in \texttt{firmware/main.py}. The firmware binary (\texttt{esp32\_micropython.bin}) is flashed to the ESP32 using \texttt{esptool.py}. The firmware implements the following core functions:
+
+\subsection{Wi-Fi Connection Management}
+The \texttt{connect\_wifi()} function activates the ESP32's Station Interface (STA\_IF), attempts connection to the configured SSID, and waits up to 15 seconds with a polling loop before timing out. If the connection fails, the ESP32 performs a hard reset via \texttt{machine.reset()} after a 10-second delay, implementing an automatic retry mechanism:
 
 \begin{codebox}[Python]
-# Local Edge Rule Engine & Hysteresis Implementation
-def evaluate_telemetry_rules(temp, humidity, gas):
-    global fan_state, manual_override
-    
-    if manual_override:
-        print("Manual Override active. Bypassing automation rules.")
-        return
-        
-    # Standard thresholds
-    TEMP_TRIGGER = 35.0
-    TEMP_SAFE = 32.0
-    GAS_TRIGGER = 2000.0
-    GAS_SAFE = 1200.0
-    
-    # Hysteresis Automation
-    if temp > TEMP_TRIGGER or gas > GAS_TRIGGER:
-        if fan_state == "OFF":
-            set_fan_state("ON")
-            send_telegram_sos("CRITICAL: Threshold exceeded. Activating fan.")
-    elif temp < TEMP_SAFE and gas < GAS_SAFE:
-        if fan_state == "ON":
-            set_fan_state("OFF")
-            send_telegram_sos("INFO: Environment safe. Deactivating fan.")
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    if not wlan.isconnected():
+        wlan.connect(WIFI_SSID, WIFI_PASS)
+        count = 0
+        while not wlan.isconnected() and count < 30:
+            time.sleep(0.5)
+            count += 1
+    if wlan.isconnected():
+        print("WiFi Connected! IP:", wlan.ifconfig()[0])
+        return True
+    else:
+        return False
 \end{codebox}
 
-The corresponding MQTT JSON format published by the ESP32 node is parsed as:
+\subsection{MQTT Client and Callback System}
+The firmware uses the \texttt{umqtt.simple} library to establish a persistent connection with the Mosquitto Broker. Upon connection, the ESP32 subscribes to the fan control topic (\texttt{rubyalert/lab\_1/fan}) and registers a callback function \texttt{on\_receive\_message()} that processes incoming fan commands:
 
-\begin{outputbox}
-\ttfamily\small
-Received telemetry on topic: rubyalert/lab\_1/telemetry\par
-Payload:\par
-{\normalfont\{}\par
-\quad "temperature": 28.5,\par
-\quad "humidity": 65.2,\par
-\quad "gas": 850.0\par
-{\normalfont\}}\par
-Status: Environment safe. Fan state: OFF.
-\end{outputbox}
+\begin{codebox}[Python]
+def on_receive_message(topic, msg):
+    global fan_state
+    if msg == b'1':
+        relay_fan.on()    # Activate relay (Active HIGH)
+        fan_state = 1
+    else:
+        relay_fan.off()   # Deactivate relay
+        fan_state = 0
+\end{codebox}
+
+\subsection{Main Telemetry Loop}
+The main loop (\texttt{run\_real\_hardware()}) runs continuously and performs the following operations every 10 seconds:
+\begin{enumerate}
+    \item Checks Wi-Fi connectivity and reconnects if necessary.
+    \item Calls \texttt{client.check\_msg()} non-blocking to process any pending fan commands.
+    \item Reads the DHT22 sensor via \texttt{sensor\_dht.measure()}.
+    \item Reads the MQ-2 analog output via \texttt{sensor\_mq2.read()} (0--4095).
+    \item Packages readings into a JSON payload and publishes to the telemetry topic.
+\end{enumerate}
+
+Each sensor read is wrapped in individual try/except blocks to ensure that a failure in one sensor does not prevent reading from the other, implementing graceful per-sensor error handling.
+
+\section{Edge Server Implementation}
+The central edge server (\texttt{server/smart\_lab\_system.py}) is a Python 3 application running approximately 577 lines of code. It orchestrates all backend logic through a multi-threaded architecture.
+
+\subsection{Thread Architecture}
+The edge server operates three concurrent threads:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|p{7cm}|}
+        \hline
+        \textbf{Thread} & \textbf{Type} & \textbf{Responsibility} \\ \hline
+        Main Thread & Blocking & MQTT \texttt{loop\_forever()} -- processes all incoming MQTT messages (telemetry and fan commands) \\ \hline
+        Telegram Thread & Daemon & Long-polling the Telegram Bot API every 2 seconds for incoming user messages \\ \hline
+        Simulator Thread & Daemon (optional) & Generates random telemetry data when \texttt{SIMULATION\_MODE = True} for testing without hardware \\ \hline
+    \end{tabular}
+    \caption{Edge Server Thread Architecture}
+    \label{tab:threads}
+\end{table}
+
+\subsection{Telemetry Processing Pipeline}
+When a telemetry message arrives on the \texttt{rubyalert/lab\_1/telemetry} topic, the \texttt{on\_message()} callback parses the JSON payload and passes it to \texttt{process\_aiot\_logic(t, h, g)}, which implements the complete decision tree described in Section~\ref{ch:design}. The function:
+
+\begin{enumerate}
+    \item Checks for DHT22 sensor faults (both temperature and humidity equal to 0.0).
+    \item Computes the Rate of Change against the previous temperature reading.
+    \item Evaluates hysteresis thresholds for both temperature and gas.
+    \item Generates and sends formatted Telegram alerts with appropriate severity levels.
+    \item Triggers the Tier 3 AI autonomous protection when gas enters the risk zone (60\%--100\% of threshold).
+\end{enumerate}
+
+\subsection{Telegram Alert System}
+The alert system implements intelligent notification management through:
+
+\begin{itemize}
+    \item \textbf{60-second Cooldown:} Automatic alert messages are rate-limited to prevent notification flooding during sustained threshold breaches. A global timestamp tracks the last alert time.
+    \item \textbf{Cooldown Bypass:} User-initiated responses (replies to commands) bypass the cooldown to ensure responsive interaction.
+    \item \textbf{Markdown Formatting:} All Telegram messages use Markdown syntax for visual emphasis (\textbf{bold} for titles, \texttt{code} for numeric values).
+    \item \textbf{Multi-tier Alert Severity:} Messages are categorized as dual-hazard (temperature + gas), single-hazard, or AI-proactive, each with distinct formatting and icons.
+\end{itemize}
+
+\section{Multi-Model AI Integration}
+\label{sec:ai_integration}
+
+The AI integration layer is the most architecturally complex component of the system. It provides a unified interface (\texttt{ask\_gemini\_ai()}) that transparently routes queries to the configured AI backend.
+
+\subsection{Unified AI Router}
+The router function \texttt{ask\_gemini\_ai(user\_question)} constructs a compressed system instruction containing real-time sensor data and behavioral rules, then dispatches the query based on the \texttt{LLM\_PROVIDER} configuration:
+
+\begin{codebox}[Python]
+def ask_gemini_ai(user_question):
+    sys_instruction = f"""RubyAlert System. 
+    T:{last_temp}C, H:{last_humi}%, G:{last_gas}ppm, 
+    Fan:{"ON" if fan_on else "OFF"}.
+    Rules: 1. Answer only about Lab safety/devices.
+    2. Reject off-topic queries. 3. Be concise.
+    4. Use "turn_on_fan" or "turn_off_fan" keywords."""
+    
+    provider = config.LLM_PROVIDER
+    if provider == "groq":
+        reply = ask_groq_ai(user_question, sys_instruction)
+    elif provider == "ollama":
+        reply = ask_ollama_ai(user_question, sys_instruction)
+    elif provider == "free":
+        reply = ask_pollinations_ai(user_question, sys_instruction)
+    else:
+        reply = ask_gemini_sdk_ai(user_question, sys_instruction)
+    
+    # Semantic Text Scanner for all models
+    if "turn_on_fan" in reply.lower():
+        turn_on_fan()
+    elif "turn_off_fan" in reply.lower():
+        turn_off_fan()
+    return reply
+\end{codebox}
+
+\subsection{Semantic Text Scanner}
+A critical innovation in this system is the \textbf{Semantic Text Scanner}. Not all AI models support native Function Calling (only Gemini does in this configuration). To enable fan control across all four AI backends, the system scans the AI's text response for predefined action keywords:
+
+\begin{itemize}
+    \item Keywords for fan activation: \foreignlanguage{vietnamese}{``bật quạt''}, \texttt{"turn on the fan"}, \texttt{"turn\_on\_fan"}
+    \item Keywords for fan deactivation: \foreignlanguage{vietnamese}{``tắt quạt''}, \texttt{"turn off the fan"}, \texttt{"turn\_off\_fan"}
+\end{itemize}
+
+The system instruction explicitly tells the AI to include these keywords in its response when it determines that fan action is appropriate. This approach provides cross-model compatibility without requiring each model to support structured output.
+
+\subsection{Gemini Function Calling Implementation}
+When using the Gemini provider, the system leverages native Function Calling. The AI model is provided with a tool list containing the \texttt{turn\_on\_fan()} and \texttt{turn\_off\_fan()} Python functions. When the model determines that an action is needed, it returns a structured \texttt{function\_call} object instead of plain text:
+
+\begin{codebox}[Python]
+# Gemini SDK with Function Calling
+response = client_ai.models.generate_content(
+    model='gemini-2.0-flash',
+    contents=user_question,
+    config=types.GenerateContentConfig(
+        system_instruction=sys_instruction,
+        tools=tools_list,  # [turn_on_fan, turn_off_fan]
+        max_output_tokens=150
+    )
+)
+# Check if AI returned a function call
+if response.candidates[0].content.parts[0].function_call:
+    fn = response.candidates[0].content.parts[0].function_call
+    if fn.name == "turn_on_fan":
+        return turn_on_fan()
+\end{codebox}
+
+\subsection{Pollinations AI (Free Provider)}
+The Pollinations AI integration provides unlimited, keyless operation through a simple REST API:
+
+\begin{codebox}[Python]
+def ask_pollinations_ai(user_question, sys_instruction):
+    url = "https://text.pollinations.ai/"
+    payload = {
+        "messages": [
+            {"role": "system", "content": sys_instruction},
+            {"role": "user", "content": user_question}
+        ],
+        "model": "openai"
+    }
+    r = requests.post(url, json=payload, timeout=20)
+    return r.text.strip()
+\end{codebox}
+
+\section{Telegram Chatbot Implementation}
+The Telegram chatbot provides the primary user interface for remote monitoring and control. It implements both structured commands and natural language processing.
+
+\subsection{Command Registration}
+At startup, the bot registers a menu of predefined commands with Telegram's \texttt{setMyCommands} API, making them appear as autocomplete suggestions in the chat interface:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|p{8cm}|}
+        \hline
+        \textbf{Command} & \textbf{Function} \\ \hline
+        \texttt{/status} & Returns current temperature, humidity, gas, and fan state \\ \hline
+        \texttt{/fan\_on} & Directly activates the exhaust fan via MQTT \\ \hline
+        \texttt{/fan\_off} & Directly deactivates the exhaust fan via MQTT \\ \hline
+        \texttt{/report} & Triggers AI to generate a comprehensive safety assessment report \\ \hline
+        \texttt{/dashboard} & Returns the Web Dashboard access URL with server status \\ \hline
+    \end{tabular}
+    \caption{Telegram Bot Command Menu}
+    \label{tab:telegram_commands}
+\end{table}
+
+\subsection{Hybrid Local/AI Message Processing}
+To optimize API token consumption, the chatbot implements a two-tier processing strategy:
+
+\begin{enumerate}
+    \item \textbf{Local Keyword Matching:} Short, direct commands (under 15 characters) containing exact keywords like \foreignlanguage{vietnamese}{``bật quạt''} (turn on fan) or \foreignlanguage{vietnamese}{``tắt quạt''} (turn off fan) are processed entirely locally without invoking the AI model. This provides instant response times and zero API cost.
+    
+    \item \textbf{AI Routing:} Complex, ambiguous, or conversational queries are forwarded to the configured AI backend for natural language understanding. The system also checks for negation words (\foreignlanguage{vietnamese}{``không''}, \foreignlanguage{vietnamese}{``đừng''}, ``don't'') and compound commands before routing, to avoid misinterpretation.
+\end{enumerate}
+
+\begin{codebox}[Python]
+# Hybrid processing logic
+negations = ["khong", "dung", "don't", "no"]
+has_negation = any(neg in text for neg in negations)
+is_short = len(text.strip()) <= 15
+
+if not has_negation and is_short:
+    for keyword, func in quick_replies.items():
+        if keyword in text:
+            reply = func()  # Local processing
+            break
+else:
+    reply = ask_gemini_ai(text)  # AI processing
+\end{codebox}
+
+\section{Web Dashboard Implementation}
+The Web Dashboard (\texttt{dashboard/dashboard.html}) is a single-page application providing real-time visualization and control. It is implemented as a self-contained HTML file with embedded CSS (via TailwindCSS CDN) and JavaScript.
+
+\subsection{Technology Stack}
+\begin{itemize}
+    \item \textbf{Layout \& Styling:} TailwindCSS with a custom Material Design 3-inspired color palette featuring 40+ semantic color tokens.
+    \item \textbf{Typography:} Google Fonts (Inter) with multiple weight variants for hierarchy.
+    \item \textbf{Charting:} Chart.js for real-time line graphs with dual Y-axes (temperature/humidity on left, gas on right).
+    \item \textbf{MQTT Client:} MQTT.js library connecting via WebSocket (\texttt{ws://host:9002/mqtt}).
+    \item \textbf{Icons:} Google Material Symbols Outlined with variable font settings.
+\end{itemize}
+
+\subsection{Dashboard Features}
+The dashboard interface includes:
+
+\begin{enumerate}
+    \item \textbf{Connection Status Indicator:} A pulsing dot (red = offline, green = online) with the last sync timestamp.
+    \item \textbf{Metric Cards (4 cards):}
+    \begin{itemize}
+        \item Temperature card with min/max display and color transition (white $\rightarrow$ red) on threshold breach.
+        \item Humidity card with average and dew point calculations.
+        \item Gas Level card with critical threshold footer and alert state styling.
+        \item Exhaust Fan card with animated spinning icon and hardware toggle switch.
+    \end{itemize}
+    \item \textbf{Live Telemetry Chart:} A 30-point rolling line chart with three datasets (Temperature, Humidity, Gas) rendered in real-time as MQTT messages arrive.
+    \item \textbf{System Event Log:} A self-pruning log panel (maximum 5 entries) categorized by event type (System, Alert, Action) with color-coded badges and timestamps.
+    \item \textbf{Responsive Navigation:} Desktop sidebar navigation and mobile bottom tab bar for cross-device compatibility.
+\end{enumerate}
+
+\subsection{Real-time MQTT Integration}
+The dashboard connects to the Mosquitto Broker via WebSocket using auto-detected host addressing:
+
+\begin{codebox}[Python]
+// Auto-detect broker host for local/remote access
+const brokerHost = window.location.hostname || '127.0.0.1';
+const brokerUrl = `ws://${brokerHost}:9002/mqtt`;
+
+const client = mqtt.connect(brokerUrl, {
+    clientId: "RubyAlert_Web_" + Math.random().toString(16),
+    clean: true,
+    connectTimeout: 5000,
+    reconnectPeriod: 3000,  // Auto-reconnect every 3s
+});
+
+client.on('message', function (topic, message) {
+    if (topic === TOPIC_TELEMETRY) {
+        const data = JSON.parse(message.toString());
+        updateDashboard(data.temperature, data.humidity, data.gas);
+    } else if (topic === TOPIC_FAN) {
+        updateFanUI(message.toString() === "1");
+    }
+});
+\end{codebox}
+
+\subsection{Fan Toggle Control}
+The dashboard provides a custom-styled toggle switch that publishes MQTT messages directly to the fan control topic, enabling real-time bidirectional control:
+
+\begin{codebox}[Python]
+function toggleFan() {
+    const isChecked = document.getElementById('fan-switch').checked;
+    client.publish(TOPIC_FAN, isChecked ? "1" : "0");
+    addLog('Action', `Fan turned ${isChecked ? 'ON' : 'OFF'}.`);
+}
+\end{codebox}
+
+\section{Configuration and Deployment}
+\subsection{Environment Variables}
+All sensitive credentials and configurable parameters are stored in a \texttt{.env} file (excluded from version control via \texttt{.gitignore}). The \texttt{config.py} module loads these using \texttt{python-dotenv}:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|p{8cm}|}
+        \hline
+        \textbf{Variable} & \textbf{Purpose} \\ \hline
+        \texttt{TELEGRAM\_TOKEN} & Telegram Bot API token from BotFather \\ \hline
+        \texttt{TELEGRAM\_CHAT\_ID} & Authorized chat ID for message filtering \\ \hline
+        \texttt{GEMINI\_API\_KEY} & Google AI Studio API key for Gemini \\ \hline
+        \texttt{LLM\_PROVIDER} & AI backend selector (free/gemini/groq/ollama) \\ \hline
+        \texttt{GROQ\_API\_KEY} & Groq Cloud API key (optional) \\ \hline
+        \texttt{OLLAMA\_HOST} & Local Ollama server URL (default: localhost:11434) \\ \hline
+        \texttt{OLLAMA\_MODEL} & Ollama model name (default: qwen2.5:3b) \\ \hline
+    \end{tabular}
+    \caption{Environment Variable Configuration}
+    \label{tab:env_vars}
+\end{table}
+
+\subsection{Deployment Steps}
+The system deployment follows this sequence:
+\begin{enumerate}
+    \item Flash the ESP32 with MicroPython firmware (\texttt{firmware/esp32\_micropython.bin}).
+    \item Upload \texttt{firmware/main.py} to the ESP32's filesystem.
+    \item Install Python dependencies: \texttt{pip install -r requirements.txt}.
+    \item Start the Mosquitto Broker: \texttt{mosquitto -c server/local\_mosquitto.conf}.
+    \item Configure \texttt{.env} with API keys and credentials.
+    \item Start the edge server: \texttt{python server/smart\_lab\_system.py}.
+    \item Open the dashboard: \texttt{dashboard/dashboard.html} in a web browser.
+\end{enumerate}
+
 
 % =========================================================================
 % CHAPTER 5: EXPERIMENTAL RESULTS
@@ -424,8 +914,13 @@ Status: Environment safe. Fan state: OFF.
 \chapter{Experimental Results}
 \label{ch:results}
 
+This chapter presents empirical evidence of the RubyAlert system in active operation, including visual verification through screenshots, Telegram conversation logs, and a comprehensive system verification matrix.
+
 \section{Visual Verification \& Dashboard Evidence}
-To provide empirical evidence of the system in active runtime, the physical deployment and rendering of the Web Dashboard are demonstrated across the states shown in Figures~\ref{fig:dashboard_mqtt_connected}--\ref{fig:dashboard_gas_alert}.
+To provide empirical evidence of the system in active runtime, the physical deployment and rendering of the Web Dashboard are demonstrated across multiple operational states.
+
+\subsection{Initial Connection State}
+Figure~\ref{fig:dashboard_mqtt_connected} shows the Web Dashboard immediately after establishing a successful MQTT WebSocket connection. The status indicator transitions from red (Offline) to green (Online), confirming bidirectional communication with the Mosquitto Broker.
 
 \begin{figure}[H]
     \centering
@@ -433,12 +928,15 @@ To provide empirical evidence of the system in active runtime, the physical depl
         \includegraphics[width=0.95\textwidth]{dashboard_mqttconnected_ini.png}
     }{
         \begin{tcolorbox}[colback=gray!5, colframe=gray, arc=1mm, height=5cm, valign=center, halign=center]
-            \bfseries\scriptsize [Initial State Placeholder]
+            \bfseries\scriptsize [Initial State -- Image not found]
         \end{tcolorbox}
     }
-    \caption{Web Dashboard State: MQTT Connection Initialized}
+    \caption{Web Dashboard State: MQTT WebSocket Connection Initialized (Status: Online)}
     \label{fig:dashboard_mqtt_connected}
 \end{figure}
+
+\subsection{Normal Telemetry Stream}
+Figure~\ref{fig:dashboard_safe_stream} demonstrates the dashboard receiving and rendering its first telemetry data packet from the ESP32 node. All metric cards display live values, the Chart.js graph begins plotting data points, and the system event log records the data reception event.
 
 \begin{figure}[H]
     \centering
@@ -446,12 +944,15 @@ To provide empirical evidence of the system in active runtime, the physical depl
         \includegraphics[width=0.95\textwidth]{dashboard_firstdatasent.png}
     }{
         \begin{tcolorbox}[colback=gray!5, colframe=gray, arc=1mm, height=5cm, valign=center, halign=center]
-            \bfseries\scriptsize [Safe Steady State Placeholder]
+            \bfseries\scriptsize [Safe Steady State -- Image not found]
         \end{tcolorbox}
     }
-    \caption{Web Dashboard State: Normal Safe Telemetry Stream}
+    \caption{Web Dashboard State: Normal Safe Telemetry Stream with Live Chart}
     \label{fig:dashboard_safe_stream}
 \end{figure}
+
+\subsection{Critical Alert State}
+Figure~\ref{fig:dashboard_gas_alert} captures the dashboard during a gas level threshold breach. The Gas Level card transitions from the default white background to a red error state, the warning icon becomes active, and the ``CRITICAL THRESHOLD'' footer appears. This visual transformation provides immediate situational awareness to the operator.
 
 \begin{figure}[H]
     \centering
@@ -459,16 +960,19 @@ To provide empirical evidence of the system in active runtime, the physical depl
         \includegraphics[width=0.95\textwidth]{dashboard_onecasealert_gasriskpotential.png}
     }{
         \begin{tcolorbox}[colback=rubyred!5, colframe=rubyred, arc=1mm, height=5cm, valign=center, halign=center]
-            \bfseries\scriptsize [Leak Alert Warning Placeholder]
+            \bfseries\scriptsize [Gas Alert State -- Image not found]
         \end{tcolorbox}
     }
-    \caption{Web Dashboard State: Critical Threshold Breach Alert for Gas Leakage}
+    \caption{Web Dashboard State: Critical Gas Level Threshold Breach Alert}
     \label{fig:dashboard_gas_alert}
 \end{figure}
 
 
 \section{Telegram Conversational Log Evidence}
-The actual conversation logs captured on a mobile device illustrating bidirectional control, telemetry requests, and proactive early warning notifications are documented in Figures~\ref{fig:telegram_first_data}--\ref{fig:telegram_proactive_alerts}.
+The actual conversation logs captured on a mobile device illustrate the full spectrum of chatbot capabilities: first data notification, AI-driven device control, and proactive early warning alerts.
+
+\subsection{First Telemetry Notification}
+Figure~\ref{fig:telegram_first_data} shows the initial system boot message sent to the operator via Telegram, including the dashboard access URLs and the first telemetry data reception confirmation.
 
 \begin{figure}[H]
     \centering
@@ -476,12 +980,15 @@ The actual conversation logs captured on a mobile device illustrating bidirectio
         \includegraphics[width=0.95\textwidth,height=0.62\textheight,keepaspectratio]{chatbot_firstdatasent.png}
     }{
         \begin{tcolorbox}[colback=gray!5, colframe=gray, arc=1mm, height=7.5cm, valign=center, halign=center]
-            \bfseries\scriptsize [Initial Chatbot Placeholder]
+            \bfseries\scriptsize [Initial Chatbot -- Image not found]
         \end{tcolorbox}
     }
-    \caption{Telegram Chatbot Workflow: First Telemetry Stream}
+    \caption{Telegram Chatbot: System Boot Notification and First Telemetry Stream}
     \label{fig:telegram_first_data}
 \end{figure}
+
+\subsection{AI Function Calling for Device Control}
+Figure~\ref{fig:telegram_function_call} demonstrates the AI Function Calling workflow. The user sends a natural language instruction (e.g., \foreignlanguage{vietnamese}{``bật quạt lên giúp tôi''} -- ``turn on the fan for me''), and the AI model interprets the intent, invokes the \texttt{turn\_on\_fan()} function, and confirms the action with a response message. The fan state change is simultaneously reflected on the Web Dashboard.
 
 \begin{figure}[H]
     \centering
@@ -489,12 +996,15 @@ The actual conversation logs captured on a mobile device illustrating bidirectio
         \includegraphics[width=0.95\textwidth,height=0.62\textheight,keepaspectratio]{chatbot_functioncall.png}
     }{
         \begin{tcolorbox}[colback=gray!5, colframe=gray, arc=1mm, height=7.5cm, valign=center, halign=center]
-            \bfseries\scriptsize [Function Call Placeholder]
+            \bfseries\scriptsize [Function Call -- Image not found]
         \end{tcolorbox}
     }
-    \caption{Telegram Chatbot Workflow: AI Function Calling for Device Control}
+    \caption{Telegram Chatbot: AI-Driven Function Calling for Fan Control}
     \label{fig:telegram_function_call}
 \end{figure}
+
+\subsection{Proactive Early Warning Alerts}
+Figure~\ref{fig:telegram_proactive_alerts} captures the system's autonomous alerting behavior. When environmental parameters breach critical thresholds (high temperature and/or gas levels), the system automatically generates and sends structured warning messages with sensor readings, threshold values, and the corrective action taken (fan activation).
 
 \begin{figure}[H]
     \centering
@@ -502,18 +1012,16 @@ The actual conversation logs captured on a mobile device illustrating bidirectio
         \includegraphics[width=0.95\textwidth,height=0.62\textheight,keepaspectratio]{chatbot_twocasealert.png}
     }{
         \begin{tcolorbox}[colback=rubyred!5, colframe=rubyred, arc=1mm, height=7.5cm, valign=center, halign=center]
-            \bfseries\scriptsize [Proactive Warning Placeholder]
+            \bfseries\scriptsize [Proactive Warning -- Image not found]
         \end{tcolorbox}
     }
-    \caption{Telegram Chatbot Workflow: Proactive Warning Alerts}
+    \caption{Telegram Chatbot: Autonomous Proactive Warning Alerts}
     \label{fig:telegram_proactive_alerts}
 \end{figure}
 
 
-\vspace*{1cm}
-
 \section{System Verification and Test Cases}
-The integrated hardware and edge server were subjected to 12 rigorous evaluation scenarios. The testing results are presented in Table~\ref{tab:test_cases}.
+The integrated hardware and edge server were subjected to 12 rigorous evaluation scenarios covering all critical system functions. Each test case was executed manually with observed results compared against expected behavior. The complete testing results are presented in Table~\ref{tab:test_cases}.
 
 \begin{table}[H]
     \centering
@@ -521,23 +1029,26 @@ The integrated hardware and edge server were subjected to 12 rigorous evaluation
     \begin{tabular}{|l|l|l|l|l|c|}
         \hline
         \textbf{ID} & \textbf{Scenario} & \textbf{Action} & \textbf{Expected Response} & \textbf{Actual Response} & \textbf{Status} \\ \hline
-        TC01 & Boot & Start server & Establish MQTT broker link & Connected to port 1884 & Pass \\ \hline
-        TC02 & Overheat & Telemetry $T = 38^\circ$C & Fan turns ON; Telegram SOS alert & Actuator active; alert sent & Pass \\ \hline
-        TC03 & Hysteresis & Telemetry $T = 33^\circ$C & Fan remains ON & Fan active (No chattering) & Pass \\ \hline
-        TC04 & Cooling & Telemetry $T = 30^\circ$C & Fan turns OFF & Fan deactivated at 32C & Pass \\ \hline
-        TC05 & Gas Leak & Telemetry $G = 2200$ppm & Buzzer active; Fan turns ON & Actuators fired; SOS sent & Pass \\ \hline
-        TC06 & Early Leak & Telemetry $G = 1300$ppm & AI Tier 3 turns on fan & AI resolved state; Fan ON & Pass \\ \hline
-        TC07 & Command & Send \texttt{/status} & Send telemetry message & Real-time stats returned & Pass \\ \hline
-        TC08 & NLP command & Send ``turn on fan'' & Gemini function call set\_fan & Tool executed successfully & Pass \\ \hline
-        TC09 & Filter & Send off-topic query & AI rejects prompt & Refusal prompt triggered & Pass \\ \hline
-        TC10 & Report & Send \texttt{/report} & AI generates safety PDF report & Multi-paragraph PDF report & Pass \\ \hline
-        TC11 & Override & Web Toggle pressed & Halts auto-rules & Manual control verified & Pass \\ \hline
-        TC12 & Rate Limit & Bombard API with requests & Graceful fallback & Fallback text return & Pass \\ \hline
+        TC01 & System Boot & Start edge server & MQTT broker connection established & Connected to port 1884 & Pass \\ \hline
+        TC02 & Overheat & Telemetry $T = 38^{\circ}$C & Fan ON; Telegram SOS alert & Actuator active; alert sent & Pass \\ \hline
+        TC03 & Hysteresis & Telemetry $T = 33^{\circ}$C & Fan remains ON (above safe threshold) & Fan active (No chattering) & Pass \\ \hline
+        TC04 & Cooling & Telemetry $T = 30^{\circ}$C & Fan turns OFF (below 32°C safe) & Fan deactivated at 32°C & Pass \\ \hline
+        TC05 & Gas Leak & Telemetry $G = 2200$ppm & Buzzer active; Fan ON; SOS & Actuators fired; SOS sent & Pass \\ \hline
+        TC06 & Early Leak & Telemetry $G = 1300$ppm & AI Tier 3 proactive fan activation & AI resolved; Fan ON & Pass \\ \hline
+        TC07 & Status Cmd & Send \texttt{/status} & Return formatted sensor readings & Real-time stats returned & Pass \\ \hline
+        TC08 & NLP Cmd & Send ``turn on fan'' & AI function call activates fan & Tool executed successfully & Pass \\ \hline
+        TC09 & Off-topic & Send irrelevant query & AI rejects with refusal prompt & Refusal triggered & Pass \\ \hline
+        TC10 & AI Report & Send \texttt{/report} & AI generates safety assessment & Multi-paragraph report & Pass \\ \hline
+        TC11 & Manual Override & Web Dashboard toggle & Auto-rules paused; manual control & Manual control verified & Pass \\ \hline
+        TC12 & Rate Limit & Rapid API requests & Graceful fallback response & Fallback text returned & Pass \\ \hline
     \end{tabular}
     }
-    \caption{RubyAlert System Verification Matrix}
+    \caption{RubyAlert System Verification Matrix (12 Test Cases)}
     \label{tab:test_cases}
 \end{table}
+
+\textbf{Test Results Summary:} All 12 test cases passed successfully, validating that the system meets all functional requirements. The hysteresis logic (TC03--TC04) was particularly important to verify, as it prevents relay chattering that could damage physical components in production deployments. The AI proactive protection (TC06) demonstrated the Tier 3 autonomous supervisor's ability to intervene before traditional hard thresholds are reached.
+
 
 % =========================================================================
 % CHAPTER 6: CONCLUSION AND FUTURE ROADMAP
@@ -545,20 +1056,37 @@ The integrated hardware and edge server were subjected to 12 rigorous evaluation
 \chapter{Conclusion}
 \label{ch:conclusion}
 
+\section{Summary of Achievements}
+The \textbf{RubyAlert} project successfully demonstrated that low-cost microcontrollers, when combined with modern AI services and well-designed software architecture, can be elevated into intelligent, cognitive safety platforms suitable for real-world laboratory environments.
+
+The system was developed as a complete, end-to-end AIoT solution encompassing:
+\begin{itemize}
+    \item A physical ESP32 sensory node with MicroPython firmware capable of reading three environmental parameters at 10-second intervals and maintaining persistent MQTT connectivity with automatic reconnection.
+    \item A Python edge server implementing hysteresis automation, rate-of-change spike detection, sensor fault isolation, and manual override priority for reliable, cloud-independent safety guarantees.
+    \item A multi-model AI integration layer supporting four distinct LLM backends (Gemini, Groq, Ollama, Pollinations) with a unified router interface and a Semantic Text Scanner for cross-model device control compatibility.
+    \item A responsive Web Dashboard with live charting, real-time metric cards, visual alert states, and direct fan toggle control via MQTT-over-WebSocket.
+    \item A Telegram Chatbot with 5 structured commands, hybrid local/AI message processing, and autonomous proactive alerting with intelligent cooldown management.
+\end{itemize}
+
 \section{Key Contributions}
-The \textbf{RubyAlert} project successfully validated that low-cost microcontrollers can be elevated into intelligent, cognitive safety platforms. The major contributions of this work are:
-\begin{enumerate}
-    \item \textbf{Intelligent Edge Fallbacks:} Integration of local rule-based safety controls (Hysteresis, Rate of Change) overriding cloud loops during outages.
-    \item \textbf{Cognitive AIoT Architecture:} Development of a 3-tier AI system leveraging Google Gemini for reactive assistance, conversational actions, and autonomous early hazard prevention.
-    \item \textbf{High-Availability Design:} Implementations of hybrid keyword/AI processing, token limits, and AI cooldowns to operate 24/7 at zero operational cost.
+The major technical contributions of this work are:
+\begin{enumerate}[leftmargin=2cm]
+    \item \textbf{Intelligent Edge Fallbacks:} Integration of local rule-based safety controls (Hysteresis, Rate of Change, Sensor Fault Detection) that override cloud-dependent AI loops during outages, ensuring continuous protection regardless of internet connectivity.
+    \item \textbf{Multi-Model AI Router:} Development of a provider-agnostic AI integration architecture that transparently routes natural language queries to the most appropriate backend, with automatic fallback to free, unlimited services when paid API quotas are exhausted.
+    \item \textbf{Semantic Text Scanner:} Innovation of a keyword-based action extraction mechanism that enables device control through any LLM, regardless of native Function Calling support.
+    \item \textbf{Cognitive AIoT Architecture:} Implementation of a 3-tier AI system (Reactive Assistant, Agentic Actor, Autonomous Supervisor) leveraging state-of-the-art large language models for context-aware laboratory safety management.
+    \item \textbf{High-Availability Design:} Implementation of hybrid keyword/AI processing, token conservation strategies, and AI cooldown timers to enable 24/7 operation at minimal or zero operational cost.
 \end{enumerate}
 
 \section{Future Roadmap}
 Future extensions of the RubyAlert platform will focus on:
-\begin{itemize}
-    \item \textbf{Private Broker Security:} Transitioning to a local Mosquitto MQTT Broker equipped with TLS/SSL encryption and password security.
-    \item \textbf{Persistent Logging:} Integrating an InfluxDB database to store telemetry histories for long-term regression modeling.
-    \item \textbf{On-board Diagnostics:} Wiring a physical SSD1306 OLED screen to the ESP32 to display sensor stats during network disconnections.
+\begin{itemize}[leftmargin=1.5cm]
+    \item \textbf{Private Broker Security:} Transitioning to TLS/SSL-encrypted MQTT communication with username/password authentication on the Mosquitto Broker to protect data in transit.
+    \item \textbf{Persistent Logging:} Integrating an InfluxDB or SQLite database to store telemetry histories for long-term trend analysis, regression modeling, and compliance reporting.
+    \item \textbf{On-board Diagnostics Display:} Wiring a physical SSD1306 OLED screen (128$\times$64 pixels, I2C) to the ESP32 to display sensor statistics and connection status during network disconnections.
+    \item \textbf{Multi-Room Scalability:} Extending the topic hierarchy (\texttt{rubyalert/lab\_\{n\}/}\allowbreak\texttt{telemetry}) to support monitoring multiple laboratory rooms from a single edge server instance.
+    \item \textbf{Camera Integration:} Adding an ESP32-CAM module for visual anomaly detection using computer vision models to complement the existing sensor-based monitoring.
+    \item \textbf{User Authentication:} Implementing login-based access control on the Web Dashboard to restrict monitoring and control capabilities to authorized personnel.
 \end{itemize}
 
 % =========================================================================
@@ -566,16 +1094,34 @@ Future extensions of the RubyAlert platform will focus on:
 % =========================================================================
 \begin{thebibliography}{9}
     \bibitem{gemini}
-    Google Gemini API documentation, Available online: \url{https://ai.google.dev/docs}.
+    Google DeepMind, ``Gemini API Documentation,'' 2024. Available online: \url{https://ai.google.dev/docs}.
     
     \bibitem{mqtt}
-    OASIS Standard, MQTT Version 5.0, Available online: \url{https://mqtt.org/}.
+    OASIS Standard, ``MQTT Version 5.0 -- Message Queuing Telemetry Transport,'' 2019. Available online: \url{https://mqtt.org/}.
     
     \bibitem{esp32}
-    Espressif Systems, ESP32 Technical Reference Manual, Available online: \url{https://espressif.com/}.
+    Espressif Systems, ``ESP32 Technical Reference Manual,'' Version 5.3, 2024. Available online: \url{https://www.espressif.com/en/products/socs/esp32/resources}.
+    
+    \bibitem{dht22}
+    Aosong Electronics, ``AM2302/DHT22 Digital Temperature and Humidity Sensor Datasheet,'' 2023.
+    
+    \bibitem{mq2}
+    Zhengzhou Winsen Electronics, ``MQ-2 Semiconductor Sensor for Combustible Gas Technical Data,'' 2022.
+    
+    \bibitem{mosquitto}
+    Eclipse Foundation, ``Eclipse Mosquitto -- An Open Source MQTT Broker,'' 2024. Available online: \url{https://mosquitto.org/}.
+    
+    \bibitem{micropython}
+    MicroPython Contributors, ``MicroPython -- Python for Microcontrollers,'' 2024. Available online: \url{https://micropython.org/}.
+    
+    \bibitem{telegram}
+    Telegram Messenger, ``Telegram Bot API Documentation,'' 2024. Available online: \url{https://core.telegram.org/bots/api}.
+    
+    \bibitem{pollinations}
+    Pollinations AI, ``Free AI Text Generation API,'' 2024. Available online: \url{https://pollinations.ai/}.
     
     \bibitem{rubyalert-repo}
-    Le Hoang Chi Vi, RubyAlert AIoT Laboratory Monitoring and Warning System Source Code, GitHub Repository, 2026. Available online: \url{https://github.com/ukulevi/rubyalert-aiot-lab}.
+    Le Hoang Chi Vi, ``RubyAlert: AIoT Laboratory Monitoring and Warning System -- Source Code Repository,'' GitHub, 2026. Available online: \url{https://github.com/ukulevi/rubyalert-aiot-lab}.
 \end{thebibliography}
 
 \end{document}
