@@ -15,7 +15,7 @@
 \usepackage{fancyhdr}
 \usepackage{lastpage}
 \usepackage{refcount}
-\usepackage{microtype}
+\usepackage[expansion=false]{microtype}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{listings}
@@ -150,7 +150,7 @@
     \vspace*{2.5cm}
     
     \begin{flushleft} \large
-        \textbf{Instructor(s):} \quad Dr. Vo Tuan Binh \\[0.6cm]
+        \textbf{Instructor(s):} \quad Vo Tuan Binh, Ph.D. \\[0.6cm]
         \textbf{Students:} \hfill \begin{minipage}[t]{0.70\textwidth}
             Le Hoang Chi Vi -- 2353336 \emph{(Group CC01, Team 29)}
         \end{minipage}
@@ -161,7 +161,29 @@
 \end{titlepage}
 
 \clearpage
-\pagenumbering{arabic}
+\pagenumbering{roman}
+
+% =========================================================================
+% ACKNOWLEDGEMENTS
+% =========================================================================
+\chapter*{Acknowledgements}
+\label{ch:acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+First and foremost, I would like to express my deepest gratitude to my multidisciplinary project supervisor, Vo Tuan Binh, Ph.D., for his invaluable guidance, continuous support, and academic mentorship throughout the course of this semester. His insights and feedback on smart systems and embedded programming significantly enhanced the quality of the engineering and implementation of this project.
+
+I would also like to extend my thanks to the Faculty of Computer Science and Engineering at Ho Chi Minh City University of Technology (VNU-HCM) for providing the resources, laboratories, and academic environment required to conduct this project. Lastly, I am grateful to my family and fellow peers for their unwavering encouragement and constructive discussions during this research work.
+\newpage
+
+% =========================================================================
+% ABSTRACT
+% =========================================================================
+\chapter*{Abstract}
+\label{ch:abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This study introduces RubyAlert, an intelligent AIoT-driven laboratory monitoring and early warning system designed to address the safety limitations of traditional static IoT architectures. Integrating perception, network, and application layers, the system collects telemetry from temperature, humidity, and gas sensors at 10-second intervals and transmits it via Mosquitto MQTT. 
+
+A key contribution of this project is the integration of a multi-model AI routing engine (Gemini, LLaMA, Qwen, and Pollinations AI) that performs natural language semantic scanning to control physical actuators (ventilation fan and buzzer) without native function-calling APIs. Additionally, we implement cloud-independent edge automation algorithms, including Hysteresis and Rate-of-Change, to ensure the laboratory remains protected during network disconnects. Real-world testing demonstrates that RubyAlert achieves robust threat response times of under 2 seconds, maintaining continuous operations with 100\% edge reliability.
+\newpage
 
 % =========================================================================
 % LIST OF FIGURES & TABLES
@@ -179,6 +201,9 @@
 % =========================================================================
 \tableofcontents
 \newpage
+
+\clearpage
+\pagenumbering{arabic}
 
 % =========================================================================
 % CHAPTER 1: INTRODUCTION
