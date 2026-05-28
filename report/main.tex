@@ -104,8 +104,7 @@
     \end{minipage}%
 }
 \fancyhead[L]{\reportheader}
-\newcommand{\totalreportpages}{\pageref{LastPage}}
-\newcommand{\reportfooter}{\footnotesize\color{charcoal}Multidisciplinary Project -- Academic year 2025 -- 2026\hfill Page \thepage/\totalreportpages}
+\newcommand{\reportfooter}{\footnotesize\color{charcoal}Multidisciplinary Project -- Academic year 2025 -- 2026\hfill Page \thepage}
 \fancyfoot[L]{\reportfooter}
 
 \fancypagestyle{plain}{%
@@ -163,7 +162,7 @@
 \end{titlepage}
 
 \clearpage
-\pagenumbering{arabic}
+\pagenumbering{roman}
 
 % =========================================================================
 % ACKNOWLEDGEMENTS
@@ -210,6 +209,9 @@ A key contribution of this project is the integration of a multi-model AI routin
 \newpage
 
 \clearpage
+\pagenumbering{arabic}
+\renewcommand{\reportfooter}{\footnotesize\color{charcoal}Multidisciplinary Project -- Academic year 2025 -- 2026\hfill Page \thepage/\pageref{LastArabicPage}}
+\fancyfoot[L]{\reportfooter}
 
 % =========================================================================
 % CHAPTER 1: INTRODUCTION
@@ -1150,4 +1152,5 @@ Future extensions of the RubyAlert platform will focus on:
     Le Hoang Chi Vi, ``RubyAlert: AIoT Laboratory Monitoring and Warning System -- Source Code Repository,'' GitHub, 2026. Available online: \url{https://github.com/ukulevi/rubyalert-aiot-lab}.
 \end{thebibliography}
 
+\label{LastArabicPage}
 \end{document}
