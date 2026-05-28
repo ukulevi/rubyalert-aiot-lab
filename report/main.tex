@@ -92,25 +92,27 @@
 \fancyhf{}
 \setlength{\headheight}{37pt}
 
-\fancyhead[L]{
+\newcommand{\reportheader}{%
     \begin{minipage}{0.08\textwidth}
         \includegraphics[width=\textwidth]{hcmut.png}
-    \end{minipage}
+    \end{minipage}%
     \hfill
     \begin{minipage}{0.90\textwidth}
         \footnotesize\color{charcoal}
         \textbf{University of Technology, Ho Chi Minh City}\\
         Faculty of Computer Science and Engineering
-    \end{minipage}
+    \end{minipage}%
 }
+\fancyhead[L]{\reportheader}
 \newcommand{\totalreportpages}{\pageref{LastPage}}
 \newcommand{\reportfooter}{\footnotesize\color{charcoal}Multidisciplinary Project -- Academic year 2025 -- 2026\hfill Page \thepage/\totalreportpages}
 \fancyfoot[L]{\reportfooter}
 
 \fancypagestyle{plain}{%
     \fancyhf{}%
+    \fancyhead[L]{\reportheader}%
     \fancyfoot[L]{\reportfooter}%
-    \renewcommand{\headrulewidth}{0pt}%
+    \renewcommand{\headrulewidth}{0.5pt}%
     \renewcommand{\footrulewidth}{0.5pt}%
 }
 
@@ -161,7 +163,7 @@
 \end{titlepage}
 
 \clearpage
-\pagenumbering{roman}
+\pagenumbering{arabic}
 
 % =========================================================================
 % ACKNOWLEDGEMENTS
@@ -183,6 +185,11 @@ I would also like to extend my thanks to the Faculty of Computer Science and Eng
 This study introduces RubyAlert, an intelligent AIoT-driven laboratory monitoring and early warning system designed to address the safety limitations of traditional static IoT architectures. Integrating perception, network, and application layers, the system collects telemetry from temperature, humidity, and gas sensors at 10-second intervals and transmits it via Mosquitto MQTT. 
 
 A key contribution of this project is the integration of a multi-model AI routing engine (Gemini, LLaMA, Qwen, and Pollinations AI) that performs natural language semantic scanning to control physical actuators (ventilation fan and buzzer) without native function-calling APIs. Additionally, we implement cloud-independent edge automation algorithms, including Hysteresis and Rate-of-Change, to ensure the laboratory remains protected during network disconnects. Real-world testing demonstrates that RubyAlert achieves robust threat response times of under 2 seconds, maintaining continuous operations with 100\% edge reliability.
+
+\begin{tcolorbox}[colback=navyblue!5, colframe=navyblue, arc=1.5mm, boxrule=0.5pt, left=4mm, right=4mm, top=3mm, bottom=3mm]
+    \footnotesize\color{navyblue}
+    \textbf{Open-Source Project Repository:} The entire codebase, including the simulated multi-model edge server, firmware scripts, and responsive dashboard files, is hosted publicly to support academic reproducibility and collaboration: \url{https://github.com/ukulevi/rubyalert-aiot-lab}
+\end{tcolorbox}
 \newpage
 
 % =========================================================================
@@ -203,18 +210,12 @@ A key contribution of this project is the integration of a multi-model AI routin
 \newpage
 
 \clearpage
-\pagenumbering{arabic}
 
 % =========================================================================
 % CHAPTER 1: INTRODUCTION
 % =========================================================================
 \chapter{Introduction}
 \label{ch:intro}
-
-\begin{tcolorbox}[colback=navyblue!5, colframe=navyblue, arc=1.5mm, boxrule=0.5pt, left=4mm, right=4mm, top=3mm, bottom=3mm]
-    \footnotesize\color{navyblue}
-    \textbf{Open-Source Project Repository:} The entire codebase, including the simulated multi-model edge server, firmware scripts, and responsive dashboard files, is hosted publicly to support academic reproducibility and collaboration: \url{https://github.com/ukulevi/rubyalert-aiot-lab}
-\end{tcolorbox}
 
 \section{Background of the Study}
 Laboratory safety represents one of the most critical aspects of academic and industrial research environments. Universities, in particular, host a wide spectrum of activities ranging from routine chemical synthesis to high-power electronic prototyping, all conducted in shared, multi-purpose lab spaces that often lack dedicated, continuous monitoring infrastructure.
